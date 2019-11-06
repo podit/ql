@@ -22,14 +22,14 @@ class Kew:
         self.cont_as = cont_as
 
         # Initialize environment
-        env = gym.make(environment).env
-        env.reset()
+        self.env = gym.make(environment).env
+        self.env.reset()
         
         # If observation space is continuous do calculations to create
         #   corresponding bins for use with Q table
         if cont_os:
-            self.os_high = env.observation_space.high
-            self.os_low = env.observation_space.low
+            self.os_high = self.env.observation_space.high
+            self.os_low = self.env.observation_space.low
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
             if environment == 'CartPole-v1':
@@ -42,43 +42,43 @@ class Kew:
                     - self.os_low) / self.discrete_os_size
         else:
             # Use number of observations if no discretization is required
-            self.discrete_os_size = [env.observation_space.n]
+            self.discrete_os_size = [self.env.observation_space.n]
         
         # The same for action space
         if cont_as:
             self.dis_centre = self.dis / 2
 
-            self.as_high = env.action_space.high
-            self.as_low = env.action_space.low
+            self.as_high = self.env.action_space.high
+            self.as_low = self.env.action_space.low
 
             self.discrete_as_size = [self.dis] * len(self.as_high)
             self.discrete_as_win_size = (self.as_high\
                     - self.as_low) / self.discrete_as_size
             self.action_n = self.dis
         else:
-            self.discrete_as_size = [env.action_space.n]
-            self.action_n = env.action_space.n
+            self.discrete_as_size = [self.env.action_space.n]
+            self.action_n = self.env.action_space.n
         
         # Initialise q-table with supplied type
         if initialisation == 'uniform':
-            Q = np.random.uniform(low = -2, high = 0, size=(
+            self.Q = np.random.uniform(low = -2, high = 0, size=(
                 self.discrete_os_size + self.discrete_as_size))
         elif initialisation == 'random':
-            Q = np.random.uniform((self.discrete_os_size,
+            self.Q = np.random.uniform((self.discrete_os_size,
                 self.discrete_as_size))
         elif initialisation == 'zeros':
-            Q = np.zeros((self.discrete_os_size,
+            self.Q = np.zeros((self.discrete_os_size,
                 self.discrete_as_size))
         elif initialisation == 'ones':
-            Q = np.ones((self.discrete_os_size,
+            self.Q = np.ones((self.discrete_os_size,
                 self.discrete_as_size))
         else:
             print('initialisation method not valid')
 
-        return Q, env
+        return
 
     # Get the discrete state from the state supplied by the environment
-    def get_discrete_state(self, state, env):
+    def get_discrete_state(self, state):
         discrete_state = ((state - self.os_low) / self.discrete_os_win_size)# - 0.5
         return tuple(discrete_state.astype(np.int))
 
@@ -91,9 +91,9 @@ class Kew:
     # e-Greedy algorithm for action selection from the q table by state with
     #   flag to force greedy method for testing. Takes input for decaying
     #   epsilon value. Gets the continuous action if needed
-    def e_greedy(self, Q, epsilon, s, greedy=False):
+    def e_greedy(self, epsilon, s, greedy=False):
         if greedy or np.random.rand() > epsilon:
-            d_a = np.argmax(Q[s])
+            d_a = np.argmax(self.Q[s])
         else:
             d_a = np.random.randint(0, self.action_n)
 
@@ -106,7 +106,7 @@ class Kew:
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, Q, env, epsilon, episode, resolution, res, policy, mode, pen,
+    def lrn(self, epsilon, episode, resolution, res, policy, mode, pen,
             alpha, gamma, maxSteps, renderFlag):
 
         # Set vars used for checks in training
@@ -117,9 +117,9 @@ class Kew:
         
         # Reset environment for new episode and get initial discretized state
         if self.cont_os:
-            d_s = self.get_discrete_state(env.reset(), env)
+            d_s = self.get_discrete_state(self.env.reset())
         else:
-            s = env.reset()
+            s = self.env.reset()
             d_s = s
 
         if mode == 'log':
@@ -142,7 +142,7 @@ class Kew:
         
         # Get initial action using e-Greedy method for SARSA policy
         if policy == 'sarsa':
-            a, d_a = self.e_greedy(Q, epsilon, d_s)
+            a, d_a = self.e_greedy(epsilon, d_s)
 
         # Loop the task until task is completed or max steps are reached
         while not done:
@@ -152,15 +152,15 @@ class Kew:
             
             # Get initial action using e-Greedy method for Q-Lrn policy
             if policy == 'q-lrn':
-                a, d_a = self.e_greedy(Q, epsilon, d_s)
+                a, d_a = self.e_greedy(epsilon, d_s)
 
             # Get next state from the chosen action and record reward
-            s_, reward, done, info = env.step(a)
+            s_, reward, done, info = self.env.step(a)
             total_reward += reward
 
             # Discretise state if observation space is continuous
             if self.cont_os:
-                d_s_ = self.get_discrete_state(s_, env)
+                d_s_ = self.get_discrete_state(s_)
             else:
                 d_s_ = s_
 
@@ -169,16 +169,17 @@ class Kew:
 
             # If the task is not completed update Q by max future Q-values
             if not done:
-                max_future_q = np.max(Q[d_s_])
+                max_future_q = np.max(self.Q[d_s_])
 
                 # Select next action based on next discretized state using
                 #   e-Greedy method for SARSA policy
                 if policy == 'sarsa':
-                    a_, d_a_ = self.e_greedy(Q, epsilon, d_s)
+                    a_, d_a_ = self.e_greedy(epsilon, d_s)
                 
                 # Perform Bellman equation to update Q-values
-                Q[d_s + (d_a, )] = (1 - alpha) * Q[d_s + (d_a, )] + alpha *\
-                        (reward + gamma * max_future_q)
+                self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
+                        + alpha * (reward + gamma *\
+                        max_future_q - self.Q[d_s + (d_a,)])
             
             # If task is completed set Q-value to zero so no penalty is applied
             if done:
@@ -186,12 +187,12 @@ class Kew:
                     pass
                 elif modeL and steps >= 10 and epsilon == 0:
                     for i in range(10):
-                        Q[history_o[i].astype(np.int) + (int(history_a[i]), )]\
+                        self.Q[history_o[i].astype(np.int) + (int(history_a[i]), )]\
                                 += pen * math.exp(-.75) ** i
                 else:
-                    Q[d_s + (d_a, )] = pen
+                    self.Q[d_s + (d_a, )] = pen
                 
-                env.reset()
+                self.env.reset()
 
                 if res == resolution:
                     res = 0
@@ -225,10 +226,10 @@ class Kew:
             if steps == maxSteps:
                 maxS = True
         
-        return Q, env, res
+        return res
 
     # Test function to test the Q-table
-    def test_qtable(self, Q, env, n_tests, maxSteps):
+    def test_qtable(self, n_tests, maxSteps):
         #print('A1')
         # Create array to store total rewards and steps for each test
         rewards = np.zeros(n_tests)
@@ -237,7 +238,7 @@ class Kew:
         for test in range(n_tests):
             #print('A2')
             # Reset the environment and get the initial state
-            d_s = self.get_discrete_state(env.reset(), env)
+            d_s = self.get_discrete_state(self.env.reset())
             
             # Set step and reward counters to zero and done flag
             steps = 0
@@ -254,13 +255,13 @@ class Kew:
                 steps += 1
                 #print('A3')
                 # Get action by e-greedy method
-                a, d_a = self.e_greedy(Q, epsilon, d_s, greedy)
+                a, d_a = self.e_greedy(epsilon, d_s, greedy)
 
                 # Get state by applying the action to the environment and
                 #   add reward
-                s, reward, done, info = env.step(a)
+                s, reward, done, info = self.env.step(a)
                 total_reward += reward
-                d_s = self.get_discrete_state(s, env)
+                d_s = self.get_discrete_state(s)
 
                 if steps == maxSteps:
                     #print('cheater')

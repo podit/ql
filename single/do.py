@@ -24,7 +24,7 @@ timestep_reward_max = []
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q-lrn'                # q-lrn, sarsa
 
-mode = 'log'                   # none, log
+mode = 'lol'                   # none, log
 pen = -2                        # penalty value
 
 verboseFlag = False
@@ -35,15 +35,15 @@ environment = 'CartPole-v1'     # CartPole-v1,
 cont_os = True
 cont_as = False
 
-dis = 26
+dis = 8
 
 resolution = 100
 res = 0
 
-maxSteps = 1000
+maxSteps = 3000
 n_tests = 100
 
-episodes = 500
+episodes = 1000
 gamma = 0.99
 alpha = 0.5
 decay = 2
@@ -60,7 +60,7 @@ e_decay_rate = epsilon_s / (eps_end - eps_start)
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-runs = 1000
+runs = 100
     
 # Check if runs is greater then 3 to a void indexing errors
 if runs >= 3:
@@ -73,7 +73,7 @@ q = Kew(dis, verboseFlag)
 for r in range(runs):
     print('Run: ', r)
     
-    Q, env = q.init_env(initialisation, cont_os, cont_as, environment,
+    q.init_env(initialisation, cont_os, cont_as, environment,
             resolution)
     
     start_split = timer()
@@ -81,7 +81,7 @@ for r in range(runs):
     for episode in range(episodes):
         episode += 1
         
-        Q, env, res = q.lrn(Q, env, epsilon, episode, resolution, res, policy,
+        res = q.lrn(epsilon, episode, resolution, res, policy,
                 mode, pen, alpha, gamma, maxSteps, renderFlag)
 
         # Decay epsilon values during epsilon decay range
@@ -101,7 +101,7 @@ for r in range(runs):
 
     #plot(timestep_reward, timestep_reward_min, timestep_reward_max, policy)
     #input('press to tesst')
-    avg_rwd, std_rwd = q.test_qtable(Q, env, n_tests, maxSteps) 
+    avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps) 
  
     # If the runs threshold is met record testing values
     if runs >= 3:
