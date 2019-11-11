@@ -6,14 +6,15 @@ import numpy as np
 class Kew:
     def __init__(self, dis, pol, log, verboseFlag):
         # Set poliy bools for control of Q-learning
-        if pol == 'q-lrn':
+        if pol == 'q_lrn':
+            print('q')
             self.polQ = True
             self.polS = False
-        if pol == 'sarsa':
+        elif pol == 'sarsa':
+            print('s')
             self.polQ = False
             self.polS = True
-        else:
-            print('Not a valid conrol policy')
+        else: print('Not a valid control policy')
 
         # Set log flag for training
         if log:
@@ -32,6 +33,7 @@ class Kew:
         # Create numpy array to store rewards for use in statistical tracking
         self.timestep_reward_res = np.zeros(resolution)
         self.resolution = resolution
+        self.res = 0
 
         # Set variables to be used to flag specific behaviour in the learning
         self.environment = environment
@@ -136,7 +138,7 @@ class Kew:
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, epsilon, episode, policy, mode, pen,
+    def lrn(self, epsilon, episode, penalty, exponent,
             alpha, gamma, maxSteps, renderFlag):
 
         # Set vars used for checks in training
@@ -147,7 +149,8 @@ class Kew:
         
         # Reset environment for new episode and get initial discretized state
         if self.cont_os: d_s = self.get_discrete_state(self.env.reset())
-        else: s = self.env.reset()
+        else:
+            s = self.env.reset()
             d_s = s
 
         if self.log:
@@ -171,8 +174,7 @@ class Kew:
 
         # Loop the task until task is completed or max steps are reached
         while not done:
-            steps += 1
-            if render: env.render()
+            if render: self.env.render()
             
             # Get initial action using e-Greedy method for Q-Lrn policy
             if self.polQ: a, d_a = self.e_greedy(epsilon, d_s)
@@ -209,13 +211,13 @@ class Kew:
                     pass
                 # If log penalties are used apply penalty respective to the
                 #   exponent of the relative position 1 to 10
-                elif modeL and steps >= 10 and epsilon == 0:
+                elif modeL and steps > 10 and epsilon == 0:
                     for i in range(10):
                         self.Q[history_o[i].astype(np.int) +\
                                 (int(history_a[i]), )]\
-                                += pen * math.exp(-.75) ** i
+                                += penalty * math.exp(exponent) ** i
                 # Otherwise apply normal penalty to the current q value 
-                else: self.Q[d_s + (d_a, )] = pen
+                else: self.Q[d_s + (d_a, )] = penalty
                
                 # Iterate the resolution counter and record rewards
                 if self.res == self.resolution: self.res = 0
@@ -231,7 +233,7 @@ class Kew:
                             np.max(self.timestep_reward_res))
                 
                 # Close the render of the episode if rendered
-                if render: env.close()
+                if render: self.env.close()
 
             # Record states and actions into rolling numpy array for applying
             #   log panalties
@@ -249,6 +251,7 @@ class Kew:
             
             # If max steps are reached complete episode and set max step flag
             if steps == maxSteps: maxS = True
+            steps += 1
         
         return
 
@@ -297,7 +300,7 @@ class Kew:
         std_rwd = np.std(rewards)
 
         # Print average test values for all tests
-        if self.verboseFlag: print(f'Average reward:{avg_rwd}, std:{std_rwd}')
+        if self.verbose: print(f'Average reward:{avg_rwd}, std:{std_rwd}')
 
         return avg_rwd, std_rwd
 

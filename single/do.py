@@ -22,15 +22,19 @@ timestep_reward_min = []
 timestep_reward_max = []
 
 initialisation = 'uniform'      # uniform, ones, zeros, random
-policy = 'sarsa'                # q-lrn, sarsa
+policy = 'q_lrn'                # q_lrn, sarsa
 
 mode = 'log'                   # none, log
-pen = -2                        # penalty value
+log = True
+pen = 2                        # penalty value
+exp = -0.75
 
-verboseFlag = False
-renderFlag = False
+verboseFlag = True
+renderFlag = True
 
-environment = 'CartPole-v1'     # CartPole-v1, 
+renderTrain = False
+
+environment = 'MountainCar-v0'     # CartPole-v1, 
 
 cont_os = True
 cont_as = False
@@ -40,10 +44,10 @@ dis = 8
 resolution = 100
 res = 0
 
-maxSteps = 5000
+maxSteps = 2500
 n_tests = 100
 
-episodes = 5000
+episodes = 1000
 gamma = 0.99
 alpha = 0.5
 decay = 2
@@ -60,7 +64,7 @@ e_decay_rate = epsilon_s / (eps_end - eps_start)
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-runs = 100
+runs = 10
     
 # Check if runs is greater then 3 to a void indexing errors
 if runs >= 3:
@@ -68,7 +72,7 @@ if runs >= 3:
     aggr_rewards = np.zeros(runs)
     aggr_stds = np.zeros(runs)
 
-q = Kew(dis, verboseFlag)
+q = Kew(dis, policy, log, verboseFlag)
 
 for r in range(runs):
     print('Run: ', r)
@@ -81,8 +85,8 @@ for r in range(runs):
     for episode in range(episodes):
         episode += 1
         
-        res = q.lrn(epsilon, episode, resolution, res, policy,
-                mode, pen, alpha, gamma, maxSteps, renderFlag)
+        res = q.lrn(epsilon, episode, pen, exp, alpha, gamma, maxSteps,
+                renderTrain)
 
         # Decay epsilon values during epsilon decay range
         if eps_end >= episode >= eps_start:
@@ -101,7 +105,7 @@ for r in range(runs):
 
     #plot(timestep_reward, timestep_reward_min, timestep_reward_max, policy)
     #input('press to tesst')
-    avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps) 
+    avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps, renderFlag) 
  
     # If the runs threshold is met record testing values
     if runs >= 3:

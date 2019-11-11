@@ -22,13 +22,17 @@ timestep_reward_min = []
 timestep_reward_max = []
 
 initialisation = 'uniform'      # uniform, ones, zeros, random
-policy = 'sarsa'                # q-lrn, sarsa
+policy = 'q_lrn'                # q_lrn, sarsa
 
 mode = 'lol'                   # none, log
+log = False
 pen = -2                        # penalty value
+exp = -0.75
 
 verboseFlag = True
 renderFlag = False
+
+renderTrain = False
 
 environment = 'CartPole-v1'     # CartPole-v1, 
 
@@ -40,7 +44,7 @@ dis = 8
 resolution = 100
 res = 0
 
-maxSteps = 3000
+maxSteps = 2500
 n_tests = 100
 
 episodes = 1000
@@ -68,7 +72,7 @@ if runs >= 3:
     aggr_rewards = np.zeros(runs)
     aggr_stds = np.zeros(runs)
 
-q = Kew(dis, verboseFlag)
+q = Kew(dis, policy, log, verboseFlag)
 
 for r in range(runs):
     print('Run: ', r)
@@ -81,8 +85,8 @@ for r in range(runs):
     for episode in range(episodes):
         episode += 1
         
-        res = q.lrn(epsilon, episode, resolution, res, policy,
-                mode, pen, alpha, gamma, maxSteps, renderFlag)
+        q.lrn(epsilon, episode, pen, exp, alpha, gamma, maxSteps,
+                renderTrain)
 
         # Decay epsilon values during epsilon decay range
         if eps_end >= episode >= eps_start:
@@ -101,7 +105,7 @@ for r in range(runs):
 
     #plot(timestep_reward, timestep_reward_min, timestep_reward_max, policy)
     #input('press to tesst')
-    avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps) 
+    avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps, renderFlag) 
  
     # If the runs threshold is met record testing values
     if runs >= 3:
