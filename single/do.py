@@ -22,9 +22,9 @@ timestep_reward_min = []
 timestep_reward_max = []
 
 initialisation = 'uniform'      # uniform, ones, zeros, random
-policy = 'q-lrn'                # q-lrn, sarsa
+policy = 'sarsa'                # q-lrn, sarsa
 
-mode = 'lol'                   # none, log
+mode = 'log'                   # none, log
 pen = -2                        # penalty value
 
 verboseFlag = False
@@ -40,10 +40,10 @@ dis = 8
 resolution = 100
 res = 0
 
-maxSteps = 3000
+maxSteps = 5000
 n_tests = 100
 
-episodes = 1000
+episodes = 5000
 gamma = 0.99
 alpha = 0.5
 decay = 2

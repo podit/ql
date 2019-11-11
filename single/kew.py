@@ -2,9 +2,26 @@ import gym
 import math
 import numpy as np
 
+# Q-learning class to train and test q table for given environment
 class Kew:
-    def __init__(self, dis, verboseFlag):
-        # Set discretisation factor
+    def __init__(self, dis, pol, log, verboseFlag):
+        # Set poliy bools for control of Q-learning
+        if pol == 'q-lrn':
+            self.polQ = True
+            self.polS = False
+        if pol == 'sarsa':
+            self.polQ = False
+            self.polS = True
+        else:
+            print('Not a valid conrol policy')
+
+        # Set log flag for training
+        if log:
+            self.log = True
+        else:
+            self.log = False
+
+        # Set discretisation factor and verbose flag
         self.dis = dis
         self.verbose = verboseFlag
 
@@ -14,10 +31,18 @@ class Kew:
 
         # Create numpy array to store rewards for use in statistical tracking
         self.timestep_reward_res = np.zeros(resolution)
+        self.resolution = resolution
 
         # Set variables to be used to flag specific behaviour in the learning
         self.environment = environment
 
+        # Set pendulum envirnonent specific flag to avoid index errors
+        if environment == 'Pendulum-v0':
+            self.pendulum = True
+        else:
+            self.pendulum = False
+
+        # Set bool toggles for continuous action and observation spaces
         self.cont_os = cont_os
         self.cont_as = cont_as
 
@@ -40,9 +65,8 @@ class Kew:
             self.discrete_os_size = [self.dis] * len(self.os_high)
             self.discrete_os_win_size = (self.os_high\
                     - self.os_low) / self.discrete_os_size
-        else:
-            # Use number of observations if no discretization is required
-            self.discrete_os_size = [self.env.observation_space.n]
+        # Use number of observations if no discretization is required
+        else: self.discrete_os_size = [self.env.observation_space.n]
         
         # The same for action space
         if cont_as:
@@ -72,41 +96,47 @@ class Kew:
         elif initialisation == 'ones':
             self.Q = np.ones((self.discrete_os_size,
                 self.discrete_as_size))
-        else:
-            print('initialisation method not valid')
+        else: print('initialisation method not valid')
 
         return
 
-    # Get the discrete state from the state supplied by the environment
+    # Get the discrete state from the state supplied by the environment (modify
+    #   values if the pendulum environment flag is set to avoid indexing errors
+    #   of discretized states in the q table)
     def get_discrete_state(self, state):
-        discrete_state = ((state - self.os_low) / self.discrete_os_win_size)# - 0.5
+        
+        if not self.pendulum:
+            discrete_state = ((state - self.os_low) / self.discrete_os_win_size)
+        else:
+            discrete_state = ((state - self.os_low) /\
+                    self.discrete_os_win_size) - 0.5
+        
         return tuple(discrete_state.astype(np.int))
 
     # Get the continuous action from the discrete action supplied by e-greedy
     def get_continuous_action(self, discrete_action):
+        
         continuous_action = (discrete_action - self.dis_centre) *\
                 self.discrete_as_win_size
+        
         return continuous_action
 
     # e-Greedy algorithm for action selection from the q table by state with
     #   flag to force greedy method for testing. Takes input for decaying
     #   epsilon value. Gets the continuous action if needed
     def e_greedy(self, epsilon, s, greedy=False):
-        if greedy or np.random.rand() > epsilon:
-            d_a = np.argmax(self.Q[s])
-        else:
-            d_a = np.random.randint(0, self.action_n)
+        
+        if greedy or np.random.rand() > epsilon: d_a = np.argmax(self.Q[s])
+        else: d_a = np.random.randint(0, self.action_n)
 
-        if self.cont_as:
-            a = self.get_continuous_action(d_a)
-        else:
-            a = d_a
+        if self.cont_as: a = self.get_continuous_action(d_a)
+        else: a = d_a
 
         return a, d_a
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, epsilon, episode, resolution, res, policy, mode, pen,
+    def lrn(self, epsilon, episode, policy, mode, pen,
             alpha, gamma, maxSteps, renderFlag):
 
         # Set vars used for checks in training
@@ -116,13 +146,11 @@ class Kew:
         render = False
         
         # Reset environment for new episode and get initial discretized state
-        if self.cont_os:
-            d_s = self.get_discrete_state(self.env.reset())
-        else:
-            s = self.env.reset()
+        if self.cont_os: d_s = self.get_discrete_state(self.env.reset())
+        else: s = self.env.reset()
             d_s = s
 
-        if mode == 'log':
+        if self.log:
             modeL = True
             history_o = np.zeros((10, len(d_s)))
             history_a = np.zeros(10)
@@ -131,41 +159,34 @@ class Kew:
 
         # Report episode and epsilon and set the episode to be rendered
         #   if the resolution is reached
-        if episode % resolution == 0 and episode != 0:
-            if self.verbose:
-                print(episode, epsilon)
-            if renderFlag:
-                render = True
+        if episode % self.resolution == 0 and episode != 0:
+            if self.verbose: print(episode, epsilon)
+            if renderFlag: render = True
 
         # Create values for recording rewards and task completion
         total_reward = 0
         
         # Get initial action using e-Greedy method for SARSA policy
-        if policy == 'sarsa':
-            a, d_a = self.e_greedy(epsilon, d_s)
+        if self.polS: a, d_a = self.e_greedy(epsilon, d_s)
 
         # Loop the task until task is completed or max steps are reached
         while not done:
             steps += 1
-            if render:
-                env.render()
+            if render: env.render()
             
             # Get initial action using e-Greedy method for Q-Lrn policy
-            if policy == 'q-lrn':
-                a, d_a = self.e_greedy(epsilon, d_s)
+            if self.polQ: a, d_a = self.e_greedy(epsilon, d_s)
 
             # Get next state from the chosen action and record reward
             s_, reward, done, info = self.env.step(a)
             total_reward += reward
 
             # Discretise state if observation space is continuous
-            if self.cont_os:
-                d_s_ = self.get_discrete_state(s_)
-            else:
-                d_s_ = s_
+            if self.cont_os: d_s_ = self.get_discrete_state(s_)
+            else: d_s_ = s_
 
-            if maxS:
-                done = True
+            # If max steps have been exceeded set episode to complete
+            if maxS: done = True
 
             # If the task is not completed update Q by max future Q-values
             if not done:
@@ -173,7 +194,7 @@ class Kew:
 
                 # Select next action based on next discretized state using
                 #   e-Greedy method for SARSA policy
-                if policy == 'sarsa':
+                if self.polS:
                     a_, d_a_ = self.e_greedy(epsilon, d_s)
                 
                 # Perform Bellman equation to update Q-values
@@ -183,60 +204,61 @@ class Kew:
             
             # If task is completed set Q-value to zero so no penalty is applied
             if done:
+                # If max steps have been reached do not apply penalty
                 if maxS:
                     pass
+                # If log penalties are used apply penalty respective to the
+                #   exponent of the relative position 1 to 10
                 elif modeL and steps >= 10 and epsilon == 0:
                     for i in range(10):
-                        self.Q[history_o[i].astype(np.int) + (int(history_a[i]), )]\
+                        self.Q[history_o[i].astype(np.int) +\
+                                (int(history_a[i]), )]\
                                 += pen * math.exp(-.75) ** i
+                # Otherwise apply normal penalty to the current q value 
+                else: self.Q[d_s + (d_a, )] = pen
+               
+                # Iterate the resolution counter and record rewards
+                if self.res == self.resolution: self.res = 0
                 else:
-                    self.Q[d_s + (d_a, )] = pen
-                
-                self.env.reset()
+                    self.timestep_reward_res[self.res] = total_reward
+                    self.res += 1
 
-                if res == resolution:
-                    res = 0
-                else:
-                    self.timestep_reward_res[res] = total_reward
-                    res += 1
-
-                if self.verbose and episode % resolution == 0 and episode != 0:
+                # Print resolution results if verbose flag is set
+                if self.verbose and episode % self.resolution == 0\
+                        and episode != 0:
                     print(np.average(self.timestep_reward_res),
                             np.min(self.timestep_reward_res),
                             np.max(self.timestep_reward_res))
                 
-                if render:
-                    env.close()
+                # Close the render of the episode if rendered
+                if render: env.close()
 
+            # Record states and actions into rolling numpy array for applying
+            #   log panalties
             if modeL:
                 history_o = np.roll(history_o, 1)
                 history_a = np.roll(history_a, 1)
                 history_o[0, ...] = d_s
                 history_a[0, ...] = d_a
 
-            if policy == 'q-lrn':
-                # Set next state to current state (Q-Learning) control policy
-                d_s = d_s_
+            # Set next state to current state (Q-Learning) control policy
+            if self.polQ: d_s = d_s_
 
-            if policy == 'sarsa':
-                # Set next state and action to current state and action (SARSA)
-                d_s, d_a, a = d_s_, d_a_, a_
+            # Set next state and action to current state and action (SARSA)
+            if self.polS: d_s, d_a, a = d_s_, d_a_, a_
             
             # If max steps are reached complete episode and set max step flag
-            if steps == maxSteps:
-                maxS = True
+            if steps == maxSteps: maxS = True
         
-        return res
+        return
 
     # Test function to test the Q-table
-    def test_qtable(self, n_tests, maxSteps):
-        #print('A1')
+    def test_qtable(self, n_tests, maxSteps, renderFlag):
         # Create array to store total rewards and steps for each test
         rewards = np.zeros(n_tests)
 
         # Iterate through each test
         for test in range(n_tests):
-            #print('A2')
             # Reset the environment and get the initial state
             d_s = self.get_discrete_state(self.env.reset())
             
@@ -251,9 +273,9 @@ class Kew:
             
             # Loop until test conditions are met iterating the steps counter
             while not done:
-                #env.render()
+                if renderFlag: env.render()
                 steps += 1
-                #print('A3')
+                
                 # Get action by e-greedy method
                 a, d_a = self.e_greedy(epsilon, d_s, greedy)
 
@@ -263,21 +285,19 @@ class Kew:
                 total_reward += reward
                 d_s = self.get_discrete_state(s)
 
-                if steps == maxSteps:
-                    #print('cheater')
-                    done = True
-            #print('A4')
+                if steps == maxSteps: done = True
+            
             # Record total rewards and steps
             rewards[test] = total_reward
 
-        #env.close()
+        if renderFlag: env.close()
 
         # Get averages of the steps and rewards and failure percentage for tests
         avg_rwd = np.average(rewards)
         std_rwd = np.std(rewards)
 
         # Print average test values for all tests
-        #print(f'Average reward:{avg_rwd}, std:{std_rwd}')
+        if self.verboseFlag: print(f'Average reward:{avg_rwd}, std:{std_rwd}')
 
         return avg_rwd, std_rwd
 
