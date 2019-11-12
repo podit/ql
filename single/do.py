@@ -16,10 +16,18 @@ def plot(rewards, mins, maxs, mthd):
 
     plt.show()
 
+def plotAll(rewards, mins, maxs, mthd):
+    shap = rewards.shape
+    for r in range(shap[0]):
+        plt.title(mthd)
+        plt.xlabel('Episodes')
+        plt.ylabel('Reward')
+        plt.plot(rewards[r])
+        plt.plot(mins[r])
+        plt.plot(maxs[r])
 
-timestep_reward = []
-timestep_reward_min = []
-timestep_reward_max = []
+    plt.show()
+
 
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
@@ -27,7 +35,7 @@ policy = 'q_lrn'                # q_lrn, sarsa
 log = False
 pen = 2                        # penalty value
 exp = -0.5
-len = 10
+length = 10
 
 profileFlag = True
 verboseFlag = False
@@ -42,17 +50,17 @@ cont_as = False
 
 dis = 8
 
-resolution = 100
+resolution = 25
 res = 0
 
 maxSteps = 1000
 n_tests = 100
 
-episodes = 2500
+episodes = 1000
 gamma = 0.99
 alpha = 0.5
 decay = 2
-epsilon_s = 0.5
+epsilon_s = 1
 
 # Calculate the decay period
 eps_start = 1
@@ -61,23 +69,31 @@ eps_end = episodes // decay
 # Calculate decay rate
 e_decay_rate = epsilon_s / (eps_end - eps_start)
 
+data_points = episodes / resolution
+
 # Start timer, set run length, set length of hyperparameters, and define
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-runs = 1500
+runs = 1000
     
 # Check if runs is greater then 3 to a void indexing errors
 if runs >= 3:
     # If so create aggregate array to store values for runs
     aggr_rewards = np.zeros(runs)
     aggr_stds = np.zeros(runs)
+    aggr_ts_r = np.zeros((runs, int(data_points)))
+    aggr_ts_r_min = np.zeros((runs, int(data_points)))
+    aggr_ts_r_max = np.zeros((runs, int(data_points)))
 
 q = Kew(dis, policy, log, verboseFlag)
 
 for r in range(runs):
-    print('Run: ', r)
-    
+    dp = 0
+    timestep_reward = np.zeros(int(data_points))
+    timestep_reward_min = np.zeros(int(data_points))
+    timestep_reward_max = np.zeros(int(data_points))
+
     q.init_env(initialisation, cont_os, cont_as, environment,
             resolution)
     
@@ -86,7 +102,7 @@ for r in range(runs):
     for episode in range(episodes):
         episode += 1
         
-        res = q.lrn(epsilon, episode, pen, exp, len, alpha, gamma, maxSteps,
+        q.lrn(epsilon, episode, pen, exp, length, alpha, gamma, maxSteps,
                 renderTrain)
 
         # Decay epsilon values during epsilon decay range
@@ -96,15 +112,15 @@ for r in range(runs):
                 epsilon = 0
 
         if episode % resolution == 0 and episode != 0:
-            timestep_reward.append(np.average(
-                    q.timestep_reward_res))
-            timestep_reward_min.append(np.min(
-                    q.timestep_reward_res))
-            timestep_reward_max.append(np.max(
-                    q.timestep_reward_res))
+            timestep_reward[dp] = np.average(
+                    q.timestep_reward_res)
+            timestep_reward_min[dp] = np.min(
+                    q.timestep_reward_res)
+            timestep_reward_max[dp] = np.max(
+                    q.timestep_reward_res)
+            dp += 1
     
 
-    #plot(timestep_reward, timestep_reward_min, timestep_reward_max, policy)
     #input('press to tesst')
     avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps, renderFlag) 
  
@@ -112,12 +128,15 @@ for r in range(runs):
     if runs >= 3:
         aggr_rewards[r] = avg_rwd
         aggr_stds[r] = std_rwd
+        aggr_ts_r[r] = timestep_reward
+        aggr_ts_r_min[r] = timestep_reward_min
+        aggr_ts_r_max[r] = timestep_reward_max
     
     if profileFlag:
         # Calculate split (total runs) time and report profiling values
         end_split = timer()
         segment = end_split - start_split
-        print('Run:', run)
+        print('Run:', r)
         print(f'Average reward:{avg_rwd}, std:{std_rwd}')
         print('Split time:', segment)
         print('#--------========--------#')
@@ -144,5 +163,7 @@ print('Time:', end-start)
 print(dis)
 # Denote the method flag provided upon completion
 print('Method used:', policy)
-print('log:', log)
-
+input('press enter to see plots')
+plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
+plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
+        np.mean(aggr_ts_r_max, axis=0), policy)

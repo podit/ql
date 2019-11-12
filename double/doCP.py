@@ -33,7 +33,7 @@ initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
 log = False
-pen = 2                        # penalty value
+pen = -2                        # penalty value
 exp = -0.5
 length = 10
 
@@ -43,7 +43,7 @@ renderFlag = False
 
 renderTrain = False
 
-environment = 'MountainCar-v0'     # CartPole-v1, 
+environment = 'CartPole-v1'     # CartPole-v1, 
 
 cont_os = True
 cont_as = False
@@ -53,7 +53,7 @@ dis = 8
 resolution = 25
 res = 0
 
-maxSteps = 1000
+maxSteps = 2500
 n_tests = 100
 
 episodes = 1000
