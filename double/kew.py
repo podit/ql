@@ -330,9 +330,6 @@ class Kew:
         avg_rwd = np.average(rewards)
         std_rwd = np.std(rewards)
 
-        # Print average test values for all tests
-        print(f'Average reward:{avg_rwd}, std:{std_rwd}')
-
         return avg_rwd, std_rwd
 
 
