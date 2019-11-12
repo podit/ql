@@ -237,7 +237,7 @@ class Kew:
 
             # Record states and actions into rolling numpy array for applying
             #   log panalties
-            if modeL:
+            if modeL and epsilon == 0:
                 history_o = np.roll(history_o, 1)
                 history_a = np.roll(history_a, 1)
                 history_o[0] = d_s
@@ -300,7 +300,7 @@ class Kew:
         std_rwd = np.std(rewards)
 
         # Print average test values for all tests
-        if self.verbose: print(f'Average reward:{avg_rwd}, std:{std_rwd}')
+        print(f'Average reward:{avg_rwd}, std:{std_rwd}')
 
         return avg_rwd, std_rwd
 

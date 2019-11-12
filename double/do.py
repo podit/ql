@@ -29,7 +29,8 @@ pen = 2                        # penalty value
 exp = -0.5
 len = 10
 
-verboseFlag = True
+profileFlag = True
+verboseFlag = False
 renderFlag = False
 
 renderTrain = False
@@ -44,10 +45,10 @@ dis = 8
 resolution = 100
 res = 0
 
-maxSteps = 2500
+maxSteps = 1000
 n_tests = 100
 
-episodes = 1000
+episodes = 2500
 gamma = 0.99
 alpha = 0.5
 decay = 2
@@ -64,7 +65,7 @@ e_decay_rate = epsilon_s / (eps_end - eps_start)
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-runs = 100
+runs = 1500
     
 # Check if runs is greater then 3 to a void indexing errors
 if runs >= 3:
@@ -112,11 +113,14 @@ for r in range(runs):
         aggr_rewards[r] = avg_rwd
         aggr_stds[r] = std_rwd
     
-    # Calculate split (total runs) time and report
-    end_split = timer()
-    segment = end_split - start_split
-    #print('Split time:', segment)
-    #print('#--------========--------#')
+    if profileFlag:
+        # Calculate split (total runs) time and report profiling values
+        end_split = timer()
+        segment = end_split - start_split
+        print('Run:', run)
+        print(f'Average reward:{avg_rwd}, std:{std_rwd}')
+        print('Split time:', segment)
+        print('#--------========--------#')
 
 # If runs threshold is met print the averages and standard
 #   deviation of the average and standard deviations of
