@@ -138,7 +138,7 @@ class Kew:
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, epsilon, episode, penalty, exponent,
+    def lrn(self, epsilon, episode, penalty, exponent, length,
             alpha, gamma, maxSteps, renderFlag):
 
         # Set vars used for checks in training
@@ -155,8 +155,8 @@ class Kew:
 
         if self.log:
             modeL = True
-            history_o = np.zeros((10, len(d_s)))
-            history_a = np.zeros(10)
+            history_o = np.zeros((length, len(d_s)))
+            history_a = np.zeros(length)
         else:
             modeL = False
 
@@ -211,9 +211,9 @@ class Kew:
                     pass
                 # If log penalties are used apply penalty respective to the
                 #   exponent of the relative position 1 to 10
-                elif modeL and steps > 10 and epsilon == 0:
-                    for i in range(10):
-                        self.Q[history_o[i].astype(np.int) +\
+                elif modeL and steps > length and epsilon == 0:
+                    for i in range(length):
+                        self.Q[tuple(history_o[i].astype(np.int)) +\
                                 (int(history_a[i]), )]\
                                 += penalty * math.exp(exponent) ** i
                 # Otherwise apply normal penalty to the current q value 
@@ -240,8 +240,8 @@ class Kew:
             if modeL:
                 history_o = np.roll(history_o, 1)
                 history_a = np.roll(history_a, 1)
-                history_o[0, ...] = d_s
-                history_a[0, ...] = d_a
+                history_o[0] = d_s
+                history_a[0] = d_a
 
             # Set next state to current state (Q-Learning) control policy
             if self.polQ: d_s = d_s_
@@ -276,7 +276,7 @@ class Kew:
             
             # Loop until test conditions are met iterating the steps counter
             while not done:
-                if renderFlag: env.render()
+                if renderFlag: self.env.render()
                 steps += 1
                 
                 # Get action by e-greedy method
@@ -293,7 +293,7 @@ class Kew:
             # Record total rewards and steps
             rewards[test] = total_reward
 
-        if renderFlag: env.close()
+        if renderFlag: self.env.close()
 
         # Get averages of the steps and rewards and failure percentage for tests
         avg_rwd = np.average(rewards)

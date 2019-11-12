@@ -24,13 +24,13 @@ timestep_reward_max = []
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-mode = 'log'                   # none, log
-log = True
+log = False
 pen = 2                        # penalty value
-exp = -0.75
+exp = -0.5
+len = 10
 
-verboseFlag = True
-renderFlag = True
+verboseFlag = False
+renderFlag = False
 
 renderTrain = False
 
@@ -64,7 +64,7 @@ e_decay_rate = epsilon_s / (eps_end - eps_start)
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-runs = 10
+runs = 100
     
 # Check if runs is greater then 3 to a void indexing errors
 if runs >= 3:
@@ -85,7 +85,7 @@ for r in range(runs):
     for episode in range(episodes):
         episode += 1
         
-        res = q.lrn(epsilon, episode, pen, exp, alpha, gamma, maxSteps,
+        res = q.lrn(epsilon, episode, pen, exp, len, alpha, gamma, maxSteps,
                 renderTrain)
 
         # Decay epsilon values during epsilon decay range
@@ -115,7 +115,7 @@ for r in range(runs):
     # Calculate split (total runs) time and report
     end_split = timer()
     segment = end_split - start_split
-    #print('Split time:', segment)
+    print('Split time:', segment)
     #print('#--------========--------#')
 
 # If runs threshold is met print the averages and standard
@@ -140,5 +140,5 @@ print('Time:', end-start)
 print(dis)
 # Denote the method flag provided upon completion
 print('Method used:', policy)
-
+print('log:', log)
 

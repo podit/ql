@@ -24,17 +24,17 @@ timestep_reward_max = []
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-mode = 'lol'                   # none, log
-log = False
-pen = -2                        # penalty value
-exp = -0.75
+log = True
+pen = 2                        # penalty value
+exp = -0.5
+len = 10
 
 verboseFlag = True
 renderFlag = False
 
 renderTrain = False
 
-environment = 'CartPole-v1'     # CartPole-v1, 
+environment = 'MountainCar-v0'     # CartPole-v1, 
 
 cont_os = True
 cont_as = False
@@ -85,7 +85,7 @@ for r in range(runs):
     for episode in range(episodes):
         episode += 1
         
-        q.lrn(epsilon, episode, pen, exp, alpha, gamma, maxSteps,
+        q.lrn(epsilon, episode, pen, exp, len, alpha, gamma, maxSteps,
                 renderTrain)
 
         # Decay epsilon values during epsilon decay range

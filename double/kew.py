@@ -145,7 +145,7 @@ class Kew:
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, epsilon, episode, penalty, exponent,
+    def lrn(self, epsilon, episode, penalty, exponent, length,
             alpha, gamma, maxSteps, renderFlag):
 
         # Set vars used for checks in training
@@ -164,8 +164,9 @@ class Kew:
         # Create numpy arrays and set flag for log mode
         if self.log:
             modeL = True
-            history_o = np.zeros((10, len(d_s)))
-            history_a = np.zeros(10)
+            history_o = np.zeros((length, len(d_s)))
+            history_a = np.zeros(length)
+            history_p = np.zeros(length)
         else:
             modeL = False
 
@@ -225,6 +226,19 @@ class Kew:
                 # If max steps have been reached do not apply penalty
                 if maxS:
                     pass
+                # Apply penalties to corresponding Q-table for the previous
+                #   <length> states and actions using the recoreded p value
+                #   for each to apply change to correct table
+                elif modeL and steps > length and epsilon == 0:
+                    for i in range(length):
+                        if history_p[i] < 0.5:
+                            self.Q1[tuple(history_o[i].astype(np.int)) +\
+                                    (int(history_a[i]), )]\
+                                    += penalty * math.exp(exponent) ** i
+                        else:
+                            self.Q2[tuple(history_o[i].astype(np.int)) +\
+                                    (int(history_a[i]), )]\
+                                    += penalty * math.exp(exponent) ** i
                 # Otherwise apply normal penalty to Q-tables in 50:50 pattern
                 else:
                     if p < 0.5:
@@ -253,8 +267,10 @@ class Kew:
             if modeL:
                 history_o = np.roll(history_o, 1)
                 history_a = np.roll(history_a, 1)
-                history_o[0, ...] = d_s
-                history_a[0, ...] = d_a
+                history_p = np.roll(history_p, 1)
+                history_o[0] = d_s
+                history_a[0] = d_a
+                history_p[0] = p
 
             # Set next state to current state (Q-Learning) control policy
             if self.polQ: d_s = d_s_
