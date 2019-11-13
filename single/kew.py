@@ -106,12 +106,13 @@ class Kew:
     #   values if the pendulum environment flag is set to avoid indexing errors
     #   of discretized states in the q table)
     def get_discrete_state(self, state):
-        
+        '''
         if not self.pendulum:
             discrete_state = ((state - self.os_low) / self.discrete_os_win_size)
         else:
-            discrete_state = ((state - self.os_low) /\
-                    self.discrete_os_win_size) - 0.5
+        '''
+        discrete_state = ((state - self.os_low) /\
+                self.discrete_os_win_size) - 0.5
         
         return tuple(discrete_state.astype(np.int))
 

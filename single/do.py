@@ -59,7 +59,7 @@ n_tests = 100
 episodes = 1000
 gamma = 0.99
 alpha = 0.5
-decay = 2
+decay = 3
 epsilon_s = 1
 
 # Calculate the decay period

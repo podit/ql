@@ -112,12 +112,13 @@ class Kew:
     #   values if the pendulum environment flag is set to avoid indexing errors
     #   of discretized states in the q table)
     def get_discrete_state(self, state):
-        
+        '''
         if not self.pendulum:
             discrete_state = ((state - self.os_low) / self.discrete_os_win_size)
         else:
-            discrete_state = ((state - self.os_low) /\
-                    self.discrete_os_win_size) - 0.5
+        '''
+        discrete_state = ((state - self.os_low) /\
+                self.discrete_os_win_size) - 0.5
 
         return tuple(discrete_state.astype(np.int))
 
@@ -190,8 +191,7 @@ class Kew:
             if render: self.env.render()
             
             # Get initial action using e-Greedy method for Q-Lrn policy
-            if self.polQ:
-                a, d_a = self.e_greedy(epsilon, d_s)
+            if self.polQ: a, d_a = self.e_greedy(epsilon, d_s)
 
             # Get next state from the chosen action and record reward
             s_, reward, done, info = self.env.step(a)
@@ -219,7 +219,6 @@ class Kew:
                     self.Q2[d_s + (d_a, )] = self.Q2[d_s + (d_a, )] + alpha *\
                             (reward + gamma * self.Q1[d_s_ + (d_a_, )] -\
                             self.Q2[d_s + (d_a, )])
-
 
             # If task is completed set Q-value to zero so no penalty is applied
             if done:
