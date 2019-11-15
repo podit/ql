@@ -32,10 +32,10 @@ def plotAll(rewards, mins, maxs, mthd):
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-log = False
+log = True
 pen = -2                        # penalty value
-exp = -0.5
-length = 10
+exp = -0.75
+length = 1
 
 profileFlag = True
 verboseFlag = False
@@ -50,17 +50,17 @@ cont_as = False
 
 dis = 8
 
-resolution = 25
+resolution = 20
 res = 0
 
-maxSteps = 2500
+maxSteps = 500
 n_tests = 100
 
 episodes = 1000
 gamma = 0.99
 alpha = 0.5
 decay = 2
-epsilon_s = 1
+epsilon_s = 0.5
 
 # Calculate the decay period
 eps_start = 1
@@ -75,7 +75,7 @@ data_points = episodes / resolution
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-runs = 1000
+runs = 100
     
 # Check if runs is greater then 3 to a void indexing errors
 if runs >= 3:

@@ -2,7 +2,7 @@ import numpy as np
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
-from kew import Kew
+from nuKew import Kew
 
 # Plotting function to plot timesteo rewards to show how the average agent
 #   reward increases over the training period by the specified resolution
@@ -32,7 +32,7 @@ def plotAll(rewards, mins, maxs, mthd):
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-log = True
+log = False
 pen = -2                        # penalty value
 exp = -0.75
 length = 1
