@@ -11,8 +11,8 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-doubleFlag = True
-eDecay = False
+doubleFlag = False
+eDecay = True
 log = False
 
 profileFlag = True
