@@ -12,7 +12,7 @@ initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
 doubleFlag = False
-eDecay = True
+eDecay = False
 log = False
 
 profileFlag = True
