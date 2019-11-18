@@ -7,11 +7,9 @@ class SinKew:
     def __init__(self, dis, pol, log, verboseFlag):
         # Set poliy bools for control of Q-learning
         if pol == 'q_lrn':
-            print('q')
             self.polQ = True
             self.polS = False
         elif pol == 'sarsa':
-            print('s')
             self.polQ = False
             self.polS = True
         else: print('Not a valid control policy')
@@ -102,15 +100,9 @@ class SinKew:
 
         return
 
-    # Get the discrete state from the state supplied by the environment (modify
-    #   values if the pendulum environment flag is set to avoid indexing errors
-    #   of discretized states in the q table)
+    # Get the discrete state from the state supplied by the environment
     def get_discrete_state(self, state):
-        '''
-        if not self.pendulum:
-            discrete_state = ((state - self.os_low) / self.discrete_os_win_size)
-        else:
-        '''
+        
         discrete_state = ((state - self.os_low) /\
                 self.discrete_os_win_size) - 0.5
         
@@ -154,6 +146,7 @@ class SinKew:
             s = self.env.reset()
             d_s = s
 
+        # Create numpy arrays and set flag for log mode
         if self.log:
             modeL = True
             history_o = np.zeros((length, len(d_s)))

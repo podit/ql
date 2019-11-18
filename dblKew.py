@@ -108,15 +108,9 @@ class DblKew:
 
         return
 
-    # Get the discrete state from the state supplied by the environment (modify
-    #   values if the pendulum environment flag is set to avoid indexing errors
-    #   of discretized states in the q table)
+    # Get the discrete state from the state supplied by the environment
     def get_discrete_state(self, state):
-        '''
-        if not self.pendulum:
-            discrete_state = ((state - self.os_low) / self.discrete_os_win_size)
-        else:
-        '''
+        
         discrete_state = ((state - self.os_low) /\
                 self.discrete_os_win_size) - 0.5
 

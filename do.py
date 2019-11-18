@@ -1,7 +1,10 @@
 import numpy as np
 from timeit import default_timer as timer
 
+# Import plotting functions
 import plotKew as plt
+
+# Import single and double Q-Learning classes
 from sinKew import SinKew
 from dblKew import DblKew
 
@@ -9,11 +12,8 @@ initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
 doubleFlag = True
-
+eDecay = False
 log = False
-pen = -2                        # penalty value
-exp = -0.75
-length = 1
 
 profileFlag = True
 verboseFlag = False
@@ -21,7 +21,7 @@ renderFlag = False
 
 renderTrain = False
 
-environment = 'CartPole-v1'     # CartPole-v1, 
+environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
 
 cont_os = True
 cont_as = False
@@ -34,12 +34,15 @@ res = 0
 maxSteps = 500
 n_tests = 100
 
+pen = -2                        # penalty value
+exp = -0.75
+length = 1
+
 episodes = 1000
 gamma = 0.99
 alpha = 0.5
 decay = 2
 epsilon = 0.1
-eDecay = False
 
 if eDecay:
     # Set epsilon start value
@@ -60,14 +63,12 @@ start = timer()
 
 runs = 100
     
-# Check if runs is greater then 3 to a void indexing errors
-if runs >= 3:
-    # If so create aggregate array to store values for runs
-    aggr_rewards = np.zeros(runs)
-    aggr_stds = np.zeros(runs)
-    aggr_ts_r = np.zeros((runs, int(data_points)))
-    aggr_ts_r_min = np.zeros((runs, int(data_points)))
-    aggr_ts_r_max = np.zeros((runs, int(data_points)))
+# If so create aggregate array to store values for runs
+aggr_rewards = np.zeros(runs)
+aggr_stds = np.zeros(runs)
+aggr_ts_r = np.zeros((runs, int(data_points)))
+aggr_ts_r_min = np.zeros((runs, int(data_points)))
+aggr_ts_r_max = np.zeros((runs, int(data_points)))
 
 # Initialise double or single Q-learning class dependent on the flag provided
 if doubleFlag:
@@ -109,16 +110,14 @@ for r in range(runs):
             dp += 1
     
 
-    #input('press to tesst')
+    if renderFlag: input('Start testing (rendered)')
     avg_rwd, std_rwd = q.test_qtable(n_tests, maxSteps, renderFlag) 
  
-    # If the runs threshold is met record testing values
-    if runs >= 3:
-        aggr_rewards[r] = avg_rwd
-        aggr_stds[r] = std_rwd
-        aggr_ts_r[r] = timestep_reward
-        aggr_ts_r_min[r] = timestep_reward_min
-        aggr_ts_r_max[r] = timestep_reward_max
+    aggr_rewards[r] = avg_rwd
+    aggr_stds[r] = std_rwd
+    aggr_ts_r[r] = timestep_reward
+    aggr_ts_r_min[r] = timestep_reward_min
+    aggr_ts_r_max[r] = timestep_reward_max
     
     if profileFlag:
         # Calculate split (total runs) time and report profiling values
@@ -129,29 +128,27 @@ for r in range(runs):
         print('Split time:', segment)
         print('#--------========--------#')
 
-# If runs threshold is met print the averages and standard
-#   deviation of the average and standard deviations of
-#   rewards and standard deviations for run length
-if runs >= 3:
-    print('Total average reward:',
-            np.average(aggr_rewards),
-            np.std(aggr_rewards), 'Stds:',
-            np.average(aggr_stds), np.std(aggr_stds))
+print('Total average reward:',
+        np.average(aggr_rewards),
+        np.std(aggr_rewards), 'Stds:',
+        np.average(aggr_stds), np.std(aggr_stds))
 
 # Print hyper parameters for testing
 print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
         alpha)
-print('Epsilon:', epsilon, 'Decay:', decay, 'Rate:',
+if eDecay: print('Decaying Epsilon Start:', epsilon_s, 'Decay:', decay, 'Rate:',
         e_decay_rate)
+else: print('Epsilon:', epsilon)
 print('------------==========================------------')
 
 # End timer and print time
 end = timer()
 print('Time:', end-start)
-print(dis)
+print('Discretisation Factor:', dis)
 # Denote the method flag provided upon completion
 print('Method used:', policy)
-input('press enter to see plots')
+print('Double?:', doubleFlag)
+input('Show plots')
 plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
 plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
         np.mean(aggr_ts_r_max, axis=0), policy)
