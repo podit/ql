@@ -36,12 +36,6 @@ class SinKew:
         # Set variables to be used to flag specific behaviour in the learning
         self.environment = environment
 
-        # Set pendulum envirnonent specific flag to avoid index errors
-        if environment == 'Pendulum-v0':
-            self.pendulum = True
-        else:
-            self.pendulum = False
-
         # Set bool toggles for continuous action and observation spaces
         self.cont_os = cont_os
         self.cont_as = cont_as
