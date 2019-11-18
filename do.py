@@ -34,7 +34,7 @@ res = 0
 maxSteps = 500
 n_tests = 100
 
-pen = -2                        # penalty value
+pen = 2                        # penalty value
 exp = -0.75
 length = 1
 
