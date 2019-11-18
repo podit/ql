@@ -21,7 +21,7 @@ renderFlag = False
 
 renderTrain = False
 
-environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
+environment = 'MountainCar-v0'     # CartPole-v1, MountainCar-v0
 
 cont_os = True
 cont_as = False
