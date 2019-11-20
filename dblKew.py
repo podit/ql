@@ -2,8 +2,8 @@ import gym
 import math
 import numpy as np
 
-class DblKew:
-    # Q-learning class to train and test q table for given environment    
+# Q-learning class to train and test q table for given environment 
+class DblKew:   
     def __init__(self, init, dis, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
             rTst, rTrn):
 
