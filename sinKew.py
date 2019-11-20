@@ -6,6 +6,7 @@ import numpy as np
 class SinKew:
     def __init__(self, init, dis, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
             rTst, rTrn):
+        
         # Set poliy bools for control of Q-learning
         if pol == 'q_lrn':
             self.polQ = True
