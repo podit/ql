@@ -11,6 +11,8 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
     aggr_ts_r = np.zeros((runs, int(dataPoints)))
     aggr_ts_r_min = np.zeros((runs, int(dataPoints)))
     aggr_ts_r_max = np.zeros((runs, int(dataPoints)))
+    aggr_ts_r_uq = np.zeros((runs, int(dataPoints)))
+    aggr_ts_r_lq = np.zeros((runs, int(dataPoints)))
 
     for r in range(runs):
         dp = 0
@@ -41,6 +43,10 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
                         q.timestep_reward_res)
                 timestep_reward_max[dp] = np.max(
                         q.timestep_reward_res)
+                timestep_reward_up_q[dp] = np.percentile(
+                        timestep_reward_res, 75)
+                timestep_reward_low_q[dp] = np.percentile(
+                        timestep_reward_res, 25)
                 dp += 1
         
 
@@ -52,6 +58,8 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         aggr_ts_r[r] = timestep_reward
         aggr_ts_r_min[r] = timestep_reward_min
         aggr_ts_r_max[r] = timestep_reward_max
+        aggr_ts_r_uq[r] = timestep_reward_up_q
+        aggr_ts_r_lq[r] = timestep_reward_low_q
         
         if profileFlag:
             # Calculate split (total runs) time and report profiling values
@@ -62,4 +70,7 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
             print('Split time:', segment)
             print('#--------========--------#')
 
-    return 
+    return aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_min, aggr_ts_max,\
+            aggr_ts_r_uq, aggr_ts_r_lq
+
+

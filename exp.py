@@ -70,9 +70,11 @@ else: q = SinKew(initialisation, policy, environment, contOS, contAS,
             discretisation, maxSteps, nTests, logFlag, verboseFlag, renderTest,
             renderTrain)
 
-d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag, gamma,
-        alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd, eDecayRate,
-        penalty, exponent, length, renderTest)
+aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
+        aggr_ts_r_uq, aggr_ts_r_lq =\
+        d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
+        gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
+        eDecayRate, penalty, exponent, length, renderTest)
 
 print('Total average reward:',
         np.average(aggr_rewards),
@@ -95,6 +97,7 @@ print('Discretisation Factor:', dis)
 print('Method used:', policy)
 print('Double?:', doubleFlag)
 input('Show plots')
-plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
+#plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
 plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
-        np.mean(aggr_ts_r_max, axis=0), policy)
+        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis-0),
+        np.mean(aggr_ts_r_lq, axis=0), policy)
