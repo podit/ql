@@ -2,7 +2,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 # Import control script
-import do
+import do as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
@@ -12,7 +12,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-doubleFlag = False
+doubleFlag = True
 eDecayFlag = False
 logFlag = False
 
@@ -22,7 +22,7 @@ verboseFlag = False
 renderTest = False
 renderTrain = False
 
-environment = 'MountainCar-v0'     # CartPole-v1, MountainCar-v0
+environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
 
 contOS = True
 contAS = False
@@ -70,9 +70,9 @@ else: q = SinKew(initialisation, policy, environment, contOS, contAS,
             discretisation, maxSteps, nTests, logFlag, verboseFlag, renderTest,
             renderTrain)
 
-do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag, gamma,
+d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag, gamma,
         alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd, eDecayRate,
-        penalty, exponent, length)
+        penalty, exponent, length, renderTest)
 
 print('Total average reward:',
         np.average(aggr_rewards),

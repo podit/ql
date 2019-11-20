@@ -3,7 +3,7 @@ from timeit import default_timer as timer
 
 def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
-        eDecayRate, penalty, exponent, lenght):
+        eDecayRate, penalty, exponent, length, renderFlag):
 
     # Create aggregate array to store values for run length
     aggr_rewards = np.zeros(runs)
@@ -12,7 +12,7 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
     aggr_ts_r_min = np.zeros((runs, int(dataPoints)))
     aggr_ts_r_max = np.zeros((runs, int(dataPoints)))
 
-    for r in range(runs)
+    for r in range(runs):
         dp = 0
         timestep_reward = np.zeros(int(dataPoints))
         timestep_reward_min = np.zeros(int(dataPoints))
@@ -21,13 +21,13 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         q.init_env(resolution)
         
         start_split = timer()
-        if eDecay: epsilon = epsilonDecay
+        if eDecayFlag: epsilon = epsilonDecay
         for episode in range(episodes):
             episode += 1
             
             q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
 
-            if eDecay:
+            if eDecayFlag:
                 # Decay epsilon values during epsilon decay range
                 if eDecayEnd >= episode >= eDecayStart:
                     epsilon -= eDecayRate

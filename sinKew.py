@@ -4,7 +4,7 @@ import numpy as np
 
 # Q-learning class to train and test q table for given environment
 class SinKew:
-    def __init__(self, init, dis, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
+    def __init__(self, init, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
             rTst, rTrn):
         
         # Set poliy bools for control of Q-learning
@@ -23,7 +23,7 @@ class SinKew:
             self.log = False
 
         # Set constant flags and values for the Q-learning object
-        self.initialiation = init
+        self.initialisation = init
         self.environment = env
         self.cont_os = cOS
         self.cont_as = cAS
@@ -49,7 +49,7 @@ class SinKew:
         
         # If observation space is continuous do calculations to create
         #   corresponding bins for use with Q table
-        if cont_os:
+        if self.cont_os:
             self.os_high = self.env.observation_space.high
             self.os_low = self.env.observation_space.low
 
@@ -66,7 +66,7 @@ class SinKew:
         else: self.discrete_os_size = [self.env.observation_space.n]
         
         # The same for action space
-        if cont_as:
+        if self.cont_as:
             self.dis_centre = self.dis / 2
 
             self.as_high = self.env.action_space.high
@@ -243,12 +243,12 @@ class SinKew:
         return
 
     # Test function to test the Q-table
-    def test_qtable(self, n_tests, maxSteps, renderFlag):
+    def test_qtable(self):
         # Create array to store total rewards and steps for each test
-        rewards = np.zeros(n_tests)
+        rewards = np.zeros(self.nTests)
 
         # Iterate through each test
-        for test in range(n_tests):
+        for test in range(self.nTests):
             # Reset the environment and get the initial state
             d_s = self.get_discrete_state(self.env.reset())
             
@@ -263,7 +263,7 @@ class SinKew:
             
             # Loop until test conditions are met iterating the steps counter
             while not done:
-                if renderFlag: self.env.render()
+                if self.renderTest: self.env.render()
                 steps += 1
                 
                 # Get action by e-greedy method
@@ -280,7 +280,7 @@ class SinKew:
             # Record total rewards and steps
             rewards[test] = total_reward
 
-        if renderFlag: self.env.close()
+        if self.renderTest: self.env.close()
 
         # Get averages of the steps and rewards and failure percentage for tests
         avg_rwd = np.average(rewards)

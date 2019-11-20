@@ -4,7 +4,7 @@ import numpy as np
 
 # Q-learning class to train and test q table for given environment 
 class DblKew:   
-    def __init__(self, init, dis, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
+    def __init__(self, init, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
             rTst, rTrn):
 
         # Set poliy bools for control of Q-learning
@@ -23,7 +23,7 @@ class DblKew:
             self.log = False
 
         # Set constant flags and values for the Q-learning object
-        self.initialiation = init
+        self.initialisation = init
         self.environment = env
         self.cont_os = cOS
         self.cont_as = cAS
