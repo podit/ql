@@ -4,7 +4,8 @@ import numpy as np
 
 # Q-learning class to train and test q table for given environment
 class SinKew:
-    def __init__(self, dis, pol, log, verboseFlag):
+    def __init__(self, init, dis, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
+            rTst, rTrn):
         # Set poliy bools for control of Q-learning
         if pol == 'q_lrn':
             self.polQ = True
@@ -20,28 +21,29 @@ class SinKew:
         else:
             self.log = False
 
-        # Set discretisation factor and verbose flag
+        # Set constant flags and values for the Q-learning object
+        self.initialiation = init
+        self.environment = env
+        self.cont_os = cOS
+        self.cont_as = cAS
         self.dis = dis
-        self.verbose = verboseFlag
+        self.maxSteps = maxS
+        self.nTests = nTst
+        self.logFlag = log
+        self.verboseFlag = ver
+        self.renderTest = rTst
+        self.renderTrain = rTrn
 
     # Initialize environment and Q-table
-    def init_env(self, initialisation, cont_os, cont_as, environment,
-            resolution):
+    def init_env(self, resolution):
 
         # Create numpy array to store rewards for use in statistical tracking
         self.timestep_reward_res = np.zeros(resolution)
         self.resolution = resolution
         self.res = 0
 
-        # Set variables to be used to flag specific behaviour in the learning
-        self.environment = environment
-
-        # Set bool toggles for continuous action and observation spaces
-        self.cont_os = cont_os
-        self.cont_as = cont_as
-
         # Initialize environment
-        self.env = gym.make(environment).env
+        self.env = gym.make(self.environment).env
         self.env.reset()
         
         # If observation space is continuous do calculations to create
@@ -51,7 +53,7 @@ class SinKew:
             self.os_low = self.env.observation_space.low
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
-            if environment == 'CartPole-v1':
+            if self.environment == 'CartPole-v1':
                 self.os_high[1], self.os_high[3] = 5, 5
                 self.os_low[1], self.os_low[3] = -5, -5
 
@@ -78,16 +80,13 @@ class SinKew:
             self.action_n = self.env.action_space.n
         
         # Initialise q-table with supplied type
-        if initialisation == 'uniform':
+        if self.initialisation == 'uniform':
             self.Q = np.random.uniform(low = -2, high = 0, size=(
                 self.discrete_os_size + self.discrete_as_size))
-        elif initialisation == 'random':
-            self.Q = np.random.uniform((self.discrete_os_size,
-                self.discrete_as_size))
-        elif initialisation == 'zeros':
+        elif self.initialisation == 'zeros':
             self.Q = np.zeros((self.discrete_os_size,
                 self.discrete_as_size))
-        elif initialisation == 'ones':
+        elif self.initialisation == 'ones':
             self.Q = np.ones((self.discrete_os_size,
                 self.discrete_as_size))
         else: print('initialisation method not valid')
@@ -125,8 +124,7 @@ class SinKew:
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, epsilon, episode, penalty, exponent, length,
-            alpha, gamma, maxSteps, renderFlag):
+    def lrn(self, epsilon, episode, penalty, exponent, length, alpha, gamma):
 
         # Set vars used for checks in training
         steps = 0
@@ -151,8 +149,8 @@ class SinKew:
         # Report episode and epsilon and set the episode to be rendered
         #   if the resolution is reached
         if episode % self.resolution == 0 and episode != 0:
-            if self.verbose: print(episode, epsilon)
-            if renderFlag: render = True
+            if self.verboseFlag: print(episode, epsilon)
+            if self.renderTrain: render = True
 
         # Create values for recording rewards and task completion
         total_reward = 0
@@ -214,7 +212,7 @@ class SinKew:
                     self.res += 1
 
                 # Print resolution results if verbose flag is set
-                if self.verbose and episode % self.resolution == 0\
+                if self.verboseFlag and episode % self.resolution == 0\
                         and episode != 0:
                     print(np.average(self.timestep_reward_res),
                             np.min(self.timestep_reward_res),
@@ -238,7 +236,7 @@ class SinKew:
             if self.polS: d_s, d_a, a = d_s_, d_a_, a_
             
             # If max steps are reached complete episode and set max step flag
-            if steps == maxSteps: maxS = True
+            if steps == self.maxSteps: maxS = True
             steps += 1
         
         return
@@ -276,7 +274,7 @@ class SinKew:
                 total_reward += reward
                 d_s = self.get_discrete_state(s)
 
-                if steps == maxSteps: done = True
+                if steps == self.maxSteps: done = True
             
             # Record total rewards and steps
             rewards[test] = total_reward

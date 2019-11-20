@@ -54,7 +54,7 @@ class DblKew:
             self.os_low = self.env.observation_space.low
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
-            if environment == 'CartPole-v1':
+            if self.environment == 'CartPole-v1':
                 self.os_high[1], self.os_high[3] = 5, 5
                 self.os_low[1], self.os_low[3] = -5, -5
 
@@ -86,11 +86,6 @@ class DblKew:
                 self.discrete_os_size + self.discrete_as_size))
             self.Q2 = np.random.uniform(low = -2, high = 0, size=(
                 self.discrete_os_size + self.discrete_as_size))
-        elif self.initialisation == 'random':
-            self.Q1 = np.random.uniform((self.discrete_os_size,
-                self.discrete_as_size))
-            self.Q2 = np.random.uniform((self.discrete_os_size,
-                self.discrete_as_size))
         elif self.initialisation == 'zeros':
             self.Q1 = np.zeros((self.discrete_os_size,
                 self.discrete_as_size))
@@ -146,8 +141,7 @@ class DblKew:
         render = False
         
         # Reset environment for new episode and get initial discretized state
-        if self.cont_os:
-            d_s = self.get_discrete_state(self.env.reset())
+        if self.cont_os: d_s = self.get_discrete_state(self.env.reset())
         else:
             s = self.env.reset()
             d_s = s
@@ -171,8 +165,7 @@ class DblKew:
         total_reward = 0
         
         # Get initial action using e-Greedy method for SARSA policy
-        if self.polS:
-            a, d_a = self.e_greedy(epsilon, d_s)
+        if self.polS: a, d_a = self.e_greedy(epsilon, d_s)
 
         # Loop the task until task is completed or max steps are reached
         while not done:
@@ -276,7 +269,7 @@ class DblKew:
             if self.polS: d_s, d_a, a = d_s_, d_a_, a_
 
             # If max steps are reached complete episode and set max step flag
-            if steps == maxSteps: maxS = True
+            if steps == self.maxSteps: maxS = True
             steps += 1
         
         return
