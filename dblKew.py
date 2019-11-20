@@ -4,7 +4,9 @@ import numpy as np
 
 class DblKew:
     # Q-learning class to train and test q table for given environment    
-    def __init__(self, dis, pol, log, verboseFlag):
+    def __init__(self, init, dis, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
+            rTst, rTrn):
+
         # Set poliy bools for control of Q-learning
         if pol == 'q_lrn':
             self.polQ = True
@@ -20,33 +22,34 @@ class DblKew:
         else:
             self.log = False
 
-        # Set discretisation factor and verbose flag
+        # Set constant flags and values for the Q-learning object
+        self.initialiation = init
+        self.environment = env
+        self.cont_os = cOS
+        self.cont_as = cAS
         self.dis = dis
-        self.verbose = verboseFlag
+        self.maxSteps = maxS
+        self.nTests = nTst
+        self.logFlag = log
+        self.verboseFlag = ver
+        self.renderTest = rTst
+        self.renderTrain = rTrn
 
     # Initialize environment and Q-table
-    def init_env(self, initialisation, cont_os, cont_as, environment,
-            resolution):
+    def init_env(self, resolution):
 
         # Create numpy array to store rewards for use in statistical tracking
         self.timestep_reward_res = np.zeros(resolution)
         self.resolution = resolution
         self.res = 0
 
-        # Set variables to be used to flag specific behaviour in the learning
-        self.environment = environment
-
-        # Set bool toggles for continuous action and observation spaces
-        self.cont_os = cont_os
-        self.cont_as = cont_as
-
         # Initialize environment
-        self.env = gym.make(environment).env
+        self.env = gym.make(self.environment).env
         self.env.reset()
         
         # If observation space is continuous do calculations to create
         #   corresponding bins for use with Q table
-        if cont_os:
+        if self.cont_os:
             self.os_high = self.env.observation_space.high
             self.os_low = self.env.observation_space.low
 
@@ -63,7 +66,7 @@ class DblKew:
         else: self.discrete_os_size = [self.env.observation_space.n]
         
         # The same for action space
-        if cont_as:
+        if self.cont_as:
             self.dis_centre = self.dis / 2
 
             self.as_high = self.env.action_space.high
@@ -78,22 +81,22 @@ class DblKew:
             self.action_n = self.env.action_space.n
         
         # Initialise q-table with supplied type
-        if initialisation == 'uniform':
+        if self.initialisation == 'uniform':
             self.Q1 = np.random.uniform(low = -2, high = 0, size=(
                 self.discrete_os_size + self.discrete_as_size))
             self.Q2 = np.random.uniform(low = -2, high = 0, size=(
                 self.discrete_os_size + self.discrete_as_size))
-        elif initialisation == 'random':
+        elif self.initialisation == 'random':
             self.Q1 = np.random.uniform((self.discrete_os_size,
                 self.discrete_as_size))
             self.Q2 = np.random.uniform((self.discrete_os_size,
                 self.discrete_as_size))
-        elif initialisation == 'zeros':
+        elif self.initialisation == 'zeros':
             self.Q1 = np.zeros((self.discrete_os_size,
                 self.discrete_as_size))
             self.Q2 = np.zeros((self.discrete_os_size,
                 self.discrete_as_size))
-        elif initialisation == 'ones':
+        elif self.initialisation == 'ones':
             self.Q1 = np.ones((self.discrete_os_size,
                 self.discrete_as_size))
             self.Q2 = np.ones((self.discrete_os_size,
@@ -134,8 +137,7 @@ class DblKew:
 
     # Perform training on the Q table for the given environment, called once per
     #   episode taking variables to control the training process
-    def lrn(self, epsilon, episode, penalty, exponent, length,
-            alpha, gamma, maxSteps, renderFlag):
+    def lrn(self, epsilon, episode, penalty, exponent, length, alpha, gamma):
 
         # Set vars used for checks in training
         steps = 0
@@ -162,8 +164,8 @@ class DblKew:
         # Report episode and epsilon and set the episode to be rendered
         #   if the resolution is reached
         if episode % self.resolution == 0 and episode != 0:
-            if self.verbose: print(episode, epsilon)
-            if renderFlag: render = True
+            if self.verboseFlag: print(episode, epsilon)
+            if self.renderTrain: render = True
 
         # Create values for recording rewards and task completion
         total_reward = 0
@@ -248,7 +250,7 @@ class DblKew:
                     self.res += 1
 
                 # Print resolution results if verbose flag is set
-                if self.verbose and episode % self.resolution == 0\
+                if self.verboseFlag and episode % self.resolution == 0\
                         and episode != 0:
                     print(np.average(self.timestep_reward_res),
                             np.min(self.timestep_reward_res),
@@ -279,14 +281,14 @@ class DblKew:
         
         return
 
-    # Test function to test the Q-table
-    def test_qtable(self, n_tests, maxSteps, renderFlag):
+    # Test the Q-table with e-greedy method and return results
+    def test_qtable(self):
         
         # Create array to store total rewards and steps for each test
-        rewards = np.zeros(n_tests)
+        rewards = np.zeros(self.nTests)
 
         # Iterate through each test
-        for test in range(n_tests):
+        for test in range(self.nTests):
             
             # Reset the environment and get the initial state
             d_s = self.get_discrete_state(self.env.reset())
@@ -302,7 +304,7 @@ class DblKew:
             
             # Loop until test conditions are met iterating the steps counter
             while not done:
-                if renderFlag: self.env.render()
+                if self.renderTest: self.env.render()
                 steps += 1
                 
                 # Get action by e-greedy method
@@ -314,12 +316,12 @@ class DblKew:
                 total_reward += reward
                 d_s = self.get_discrete_state(s)
 
-                if steps == maxSteps: done = True
+                if steps == self.maxSteps: done = True
             
             # Record total rewards and steps
             rewards[test] = total_reward
 
-        if renderFlag: self.env.close()
+        if self.renderTest: self.env.close()
 
         # Get averages of the steps and rewards and failure percentage for tests
         avg_rwd = np.average(rewards)
