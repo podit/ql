@@ -17,7 +17,7 @@ eDecayFlag = True
 logFlag = False
 
 profileFlag = True
-verboseFlag = False
+verboseFlag = True
 
 renderTest = False
 renderTrain = False
@@ -54,7 +54,7 @@ epsilonDecay = 0.01
 eDecayStart = 1
 eDecayEnd = episodes // decay
 # Calculate decay rate
-eDecayRate = epsilonDecay / (eDecayStart - eDecayEnd)
+eDecayRate = epsilonDecay / eDecayEnd
 
 dataPoints = episodes / resolution
 
