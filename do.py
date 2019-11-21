@@ -19,6 +19,8 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         timestep_reward = np.zeros(int(dataPoints))
         timestep_reward_min = np.zeros(int(dataPoints))
         timestep_reward_max = np.zeros(int(dataPoints))
+        timestep_reward_up_q = np.zeros(int(dataPoints))
+        timestep_reward_low_q = np.zeros(int(dataPoints))
 
         q.init_env(resolution)
         
@@ -44,9 +46,9 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
                 timestep_reward_max[dp] = np.max(
                         q.timestep_reward_res)
                 timestep_reward_up_q[dp] = np.percentile(
-                        timestep_reward_res, 75)
+                        q.timestep_reward_res, 75)
                 timestep_reward_low_q[dp] = np.percentile(
-                        timestep_reward_res, 25)
+                        q.timestep_reward_res, 25)
                 dp += 1
         
 
@@ -70,7 +72,7 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
             print('Split time:', segment)
             print('#--------========--------#')
 
-    return aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_min, aggr_ts_max,\
+    return aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
             aggr_ts_r_uq, aggr_ts_r_lq
 
 

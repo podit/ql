@@ -13,7 +13,7 @@ initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
 doubleFlag = True
-eDecayFlag = False
+eDecayFlag = True
 logFlag = False
 
 profileFlag = True
@@ -34,12 +34,12 @@ resolution = 20
 maxSteps = 500
 nTests = 100
 
-penalty = 2                        # penalty value
+penalty = -2                        # penalty value
 exponent = -0.75
 length = 1
 
 episodes = 1000
-runs = 100
+runs = 1000
     
 gamma = 0.99
 alpha = 0.5
@@ -47,9 +47,9 @@ alpha = 0.5
 epsilon = 0.1
 
 # Set decay coefficient
-decay = 2
+decay = 1.5
 # Set epsilon start value
-epsilonDecay = 0.5
+epsilonDecay = 0.01
 # Calculate the decay period
 eDecayStart = 1
 eDecayEnd = episodes // decay
@@ -84,20 +84,20 @@ print('Total average reward:',
 # Print hyper parameters for testing
 print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
         alpha)
-if eDecay: print('Decaying Epsilon Start:', epsilon_s, 'Decay:', decay, 'Rate:',
-        e_decay_rate)
+if eDecayFlag: print('Decaying Epsilon Start:', epsilonDecay, 'Decay:', decay, 'Rate:',
+        eDecayRate)
 else: print('Epsilon:', epsilon)
 print('------------==========================------------')
 
 # End timer and print time
 end = timer()
 print('Time:', end-start)
-print('Discretisation Factor:', dis)
+print('Discretisation Factor:', discretisation)
 # Denote the method flag provided upon completion
 print('Method used:', policy)
 print('Double?:', doubleFlag)
 input('Show plots')
 #plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
 plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
-        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis-0),
+        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),
         np.mean(aggr_ts_r_lq, axis=0), policy)
