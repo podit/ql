@@ -12,12 +12,12 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
-doubleFlag = True
+doubleFlag = False
 eDecayFlag = True
 logFlag = False
 
 profileFlag = True
-verboseFlag = True
+verboseFlag = False
 
 renderTest = False
 renderTrain = False
@@ -29,7 +29,7 @@ contAS = False
 
 discretisation = 8
 
-resolution = 20
+resolution = 5
 
 maxSteps = 500
 nTests = 100
@@ -47,9 +47,9 @@ alpha = 0.5
 epsilon = 0.1
 
 # Set decay coefficient
-decay = 1.5
+decay = 1.25
 # Set epsilon start value
-epsilonDecay = 0.01
+epsilonDecay = 0.1
 # Calculate the decay period
 eDecayStart = 1
 eDecayEnd = episodes // decay
