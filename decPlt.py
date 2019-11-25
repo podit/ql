@@ -64,6 +64,8 @@ start = timer()
 
 experiments = 6
 
+aggr_rewards = [None] * experiments
+
 decays = [3, 2, 1.5, 1.25, 1.1, 1]
 
 for e in range(experiments):
@@ -85,8 +87,8 @@ for e in range(experiments):
             eDecayRate, penalty, exponent, length, renderTest)
 
     print('Total average reward:',
-            np.average(aggr_rewards),
-            np.std(aggr_rewards), 'Stds:',
+            np.average(aggr_rewards[e]),
+            np.std(aggr_rewards[e]), 'Stds:',
             np.average(aggr_stds), np.std(aggr_stds))
 
     # Print hyper parameters for testing
