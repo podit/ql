@@ -27,4 +27,7 @@ def plotAll(rewards, mins, maxs, mthd):
 
     plt.show()
 
-
+def boxPlot(data):
+    fig1, ax1 = plt.subplots()
+    ax1.boxplot(data)
+    plt.show()
