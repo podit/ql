@@ -9,7 +9,7 @@ import plotKew as plt
 from sinKew import SinKew
 from dblKew import DblKew
 
-initialisation = 'uniform'      # uniform, ones, zeros, random
+initialisation = 'ones'      # uniform, ones, zeros, random
 policy = 'q_lrn'                # q_lrn, sarsa
 
 doubleFlag = False
@@ -31,15 +31,15 @@ discretisation = 8
 
 resolution = 5
 
-maxSteps = 500
+maxSteps = 5000
 nTests = 100
 
 penalty = -2                        # penalty value
 exponent = -0.75
 length = 1
 
-episodes = 1000
-runs = 1000
+episodes = 5000
+runs = 100
     
 gamma = 0.99
 alpha = 0.5
@@ -65,6 +65,9 @@ start = timer()
 experiments = 6
 
 aggr_rewards = [None] * experiments
+avg = [None] * experiments
+
+ind = [1, 2, 3, 4, 5, 6]
 
 decays = [3, 2, 1.5, 1.25, 1.1, 1]
 
@@ -85,6 +88,8 @@ for e in range(experiments):
             d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
             gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
             eDecayRate, penalty, exponent, length, renderTest)
+
+    avg[e] = np.average(aggr_rewards[e])
 
     print('Total average reward:',
             np.average(aggr_rewards[e]),
@@ -108,7 +113,7 @@ print('Method used:', policy)
 print('Double?:', doubleFlag)
 input('Show plots')
 data = aggr_rewards
-plt.boxPlot(data)
+plt.boxPlot(data, avg, ind)
 #plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
 #plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
 #        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),

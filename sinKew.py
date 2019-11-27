@@ -82,13 +82,13 @@ class SinKew:
         
         # Initialise q-table with supplied type
         if self.initialisation == 'uniform':
-            self.Q = np.random.uniform(low = -2, high = 0, size=(
+            self.Q = np.random.uniform(low = 0, high = 2, size=(
                 self.discrete_os_size + self.discrete_as_size))
         elif self.initialisation == 'zeros':
-            self.Q = np.zeros((self.discrete_os_size,
+            self.Q = np.zeros((self.discrete_os_size +
                 self.discrete_as_size))
         elif self.initialisation == 'ones':
-            self.Q = np.ones((self.discrete_os_size,
+            self.Q = np.ones((self.discrete_os_size +
                 self.discrete_as_size))
         else: print('initialisation method not valid')
 

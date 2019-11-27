@@ -27,7 +27,8 @@ def plotAll(rewards, mins, maxs, mthd):
 
     plt.show()
 
-def boxPlot(data):
+def boxPlot(data, avg, ind):
     fig1, ax1 = plt.subplots()
-    ax1.boxplot(data)
+    ax1.boxplot(data, notch=True)
+    ax1.plot(ind, avg)
     plt.show()
