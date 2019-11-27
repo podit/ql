@@ -1,6 +1,8 @@
 import numpy as np
 from timeit import default_timer as timer
 
+import math
+
 # Import control script
 import do as d
 # Import plotting functions
@@ -31,14 +33,14 @@ discretisation = 8
 
 resolution = 5
 
-maxSteps = 5000
+maxSteps = 2500
 nTests = 100
 
 penalty = -2                        # penalty value
 exponent = -0.75
 length = 1
 
-episodes = 5000
+episodes = 2500
 runs = 100
     
 gamma = 0.99
@@ -114,6 +116,9 @@ print('Double?:', doubleFlag)
 input('Show plots')
 data = aggr_rewards
 plt.boxPlot(data, avg, ind)
+row = math.floor(math.sqrt(experiments))
+col = experments/row
+plt.hist(data, row, col, experiments)
 #plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
 #plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
 #        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),

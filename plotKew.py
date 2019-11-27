@@ -32,3 +32,13 @@ def boxPlot(data, avg, ind):
     ax1.boxplot(data, notch=True)
     ax1.plot(ind, avg)
     plt.show()
+
+def hist(data, row, col, experiments):
+
+    fig, ax = plt.subplots(row, col)
+
+    for e in range(experiments):
+        ax[e].hist(data[e], 100)
+
+    plt.show()
+
