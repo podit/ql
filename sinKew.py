@@ -179,17 +179,23 @@ class SinKew:
 
             # If the task is not completed update Q by max future Q-values
             if not done:
-                max_future_q = np.max(self.Q[d_s_])
+                if self.polQ:
+                    max_future_q = np.max(self.Q[d_s_])
+                
+                    # Update Q-value with Bellman Equation
+                    self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
+                            + alpha * (reward + gamma *\
+                            max_future_q - self.Q[d_s + (d_a,)])
 
                 # Select next action based on next discretized state using
                 #   e-Greedy method for SARSA policy
                 if self.polS:
                     a_, d_a_ = self.e_greedy(epsilon, d_s)
-                
-                # Perform Bellman equation to update Q-values
-                self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
-                        + alpha * (reward + gamma *\
-                        max_future_q - self.Q[d_s + (d_a,)])
+               
+                    # Update Q-value with Bellman Equation
+                    self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
+                            + alpha * (reward + gamma *\
+                            self.Q[d_s_ + (d_a_,)] - self.Q[d_s + (d_a,)])
             
             # If task is completed set Q-value to zero so no penalty is applied
             if done:

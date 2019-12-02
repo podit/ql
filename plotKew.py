@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 # Plotting function to plot timesteo rewards to show how the average agent
 #   reward increases over the training period by the specified resolution
-def plot(rewards, mins, maxs, uq, lq, mthd):
-    plt.title(mthd)
+def plot(rewards, mins, maxs, uq, lq):
+    #plt.title(mthd)
     plt.xlabel('Episodes')
     plt.ylabel('Reward')
     plt.plot(rewards)
