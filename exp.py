@@ -14,7 +14,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'q_lrn'                # q_lrn, sarsa
+policy = 'sarsa'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
@@ -51,7 +51,7 @@ maxSteps = 500
 nTests = 100
 
 # Set penalty to be applied at episode completion (positive acts as reward)
-penalty = -2
+penalty = 0
 
 # Used when logFlag is enabled
 # Set exponent for exponential penalty and length of applied steps
@@ -61,7 +61,7 @@ length = 5
 # Set number of episodes and runs to be completed by the agent
 episodes = 1000
 # Episodes constitute run length before testing
-runs = 1000
+runs = 100
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -76,7 +76,7 @@ epsilon = 0.1
 # Set decay coefficient
 decay = 1.25
 # Set epsilon start value
-epsilonDecay = 0.1
+epsilonDecay = 0.75
 # Calculate the decay period
 eDecayStart = 1
 eDecayEnd = episodes // decay
@@ -113,7 +113,7 @@ print('Total average reward:',
         np.average(aggr_stds), np.std(aggr_stds))
 
 # Print experiment number to show progress
-print('Expreiment:', e, 'of:', experiments)
+#print('Expreiment:', e, 'of:', experiments)
 # Print experiment parameters
 print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
         alpha, 'Penalty:', penalty)

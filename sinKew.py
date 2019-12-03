@@ -191,17 +191,30 @@ class SinKew:
                 #   e-Greedy method for SARSA policy
                 if self.polS:
                     a_, d_a_ = self.e_greedy(epsilon, d_s)
-               
+                    #_s_, r_, d_, info = self.env.step(a_)
+                    #if d_:
+                    #    Q_ = 0
+                    #else:
+                    #    Q_ = self.Q[d_s_ + (d_a_,)]
+                    Q_ = self.Q[d_s_ + (d_a_,)]
                     # Update Q-value with Bellman Equation
                     self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
                             + alpha * (reward + gamma *\
-                            self.Q[d_s_ + (d_a_,)] - self.Q[d_s + (d_a,)])
+                            Q_ - self.Q[d_s + (d_a,)])
             
             # If task is completed set Q-value to zero so no penalty is applied
             if done:
                 # If max steps have been reached do not apply penalty
                 if maxS:
                     pass
+                # Apply normal penalty to the current q value(q_lrn)
+                elif self.polQ: self.Q[d_s + (d_a, )] = penalty
+                elif self.polS: self.Q[d_s + (d_a, )] = penalty
+                    # Update Q-value with Bellman Equation with next SA value
+                    #   as 0 when the next state is terminal
+                    #self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
+                    #        + alpha * (reward + gamma *\
+                    #        penalty - self.Q[d_s + (d_a,)])
                 # If log penalties are used apply penalty respective to the
                 #   exponent of the relative position 1 to 10
                 elif modeL and steps > length and epsilon == 0:
@@ -209,8 +222,6 @@ class SinKew:
                         self.Q[tuple(history_o[i].astype(np.int)) +\
                                 (int(history_a[i]), )]\
                                 += penalty * math.exp(exponent) ** i
-                # Otherwise apply normal penalty to the current q value 
-                else: self.Q[d_s + (d_a, )] = penalty
                
                 # Iterate the resolution counter and record rewards
                 if self.res == self.resolution: self.res = 0
