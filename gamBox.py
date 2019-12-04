@@ -14,7 +14,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'sarsa'                # q_lrn, sarsa
+policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
@@ -23,7 +23,7 @@ logFlag = False
 
 # Flags to report each run and each resolution step
 # Report run number and average reward from test for each run
-profileFlag = False
+profileFlag = True
 # Report episode and epsilon value as well as reward for each resolution step
 verboseFlag = False
 
@@ -46,12 +46,12 @@ discretisation = 8
 resolution = 5
 
 # Set max steps in the environment
-maxSteps = 500
+maxSteps = 10000
 # Set number of tests to be run (average is reported)
 nTests = 100
 
 # Set penalty to be applied at episode completion (positive acts as reward)
-penalty = 0
+penalty = -2
 
 # Used when logFlag is enabled
 # Set exponent for exponential penalty and length of applied steps
@@ -59,9 +59,9 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 1000
+episodes = 10000
 # Episodes constitute run length before testing
-runs = 100
+runs = 1000
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -74,9 +74,17 @@ epsilon = 0.1
 
 # Used whrn eDecayFlag is enabled
 # Set decay coefficient
-decay = 2
+decay = 1.25
 # Set epsilon start value
-epsilonDecay = 0.5
+epsilonDecay = 0.1
+# Calculate the decay period
+eDecayStart = 1
+eDecayEnd = episodes // decay
+# Calculate decay rate
+eDecayRate = epsilonDecay / eDecayEnd
+
+# Create number of individual data points for run length
+dataPoints = episodes / resolution
 
 # Start experiment timer
 start = timer()
@@ -84,28 +92,17 @@ start = timer()
 # Number of experimental parameters
 experiments = 6
 
-ind = [1, 2, 3, 4, 5, 6]
-
 # List of experimental parameters to be tested
-values = [250, 500, 750, 1000, 2000, 3000]
+values = [0.7, 0.8, 0.9, 0.99, 0.999, 0.9999]
+
 # List of values to be revorded and compared in boxplot
 aggr_rewards = [None] * experiments
-avg = [None] * experiments
 
 # Iterate through each experimental value and run Q-learning
 for e in range(experiments):
 
     # Chenge value to the correponding hyper-parameter
-    episodes = values[e]
-
-    # Calculate the decay period
-    eDecayStart = 1
-    eDecayEnd = episodes // decay
-    # Calculate decay rate
-    eDecayRate = epsilonDecay / eDecayEnd
-
-    # Create number of individual data points for run length
-    dataPoints = episodes / resolution
+    gamma = values[e]
 
     # Initialise double or single QL class with the doubleFlag value provided
     if doubleFlag: q = DblKew(initialisation, policy, environment, contOS,
@@ -122,8 +119,6 @@ for e in range(experiments):
             d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
             gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
             eDecayRate, penalty, exponent, length, renderTest)
-
-    avg[e] = np.average(aggr_rewards[e])
 
     # Print the average reward and standard deviation of test results for
     #   all the runs over the experiment
@@ -156,6 +151,6 @@ print('Environment:', environment)
 input('Show plots')
 print(values)
 data = aggr_rewards
-plt.boxPlot(data, avg, ind)
+plt.boxPlot(data)
 
 

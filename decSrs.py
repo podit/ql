@@ -74,9 +74,17 @@ epsilon = 0.1
 
 # Used whrn eDecayFlag is enabled
 # Set decay coefficient
-decay = 2
+decay = 1.25
 # Set epsilon start value
-epsilonDecay = 0.5
+epsilonDecay = 0.1
+# Calculate the decay period
+eDecayStart = 1
+eDecayEnd = episodes // decay
+# Calculate decay rate
+eDecayRate = epsilonDecay / eDecayEnd
+
+# Create number of individual data points for run length
+dataPoints = episodes / resolution
 
 # Start experiment timer
 start = timer()
@@ -87,7 +95,8 @@ experiments = 6
 ind = [1, 2, 3, 4, 5, 6]
 
 # List of experimental parameters to be tested
-values = [250, 500, 750, 1000, 2000, 3000]
+values = [3, 2, 1.5, 1.25, 1.1, 1]
+
 # List of values to be revorded and compared in boxplot
 aggr_rewards = [None] * experiments
 avg = [None] * experiments
@@ -96,16 +105,7 @@ avg = [None] * experiments
 for e in range(experiments):
 
     # Chenge value to the correponding hyper-parameter
-    episodes = values[e]
-
-    # Calculate the decay period
-    eDecayStart = 1
-    eDecayEnd = episodes // decay
-    # Calculate decay rate
-    eDecayRate = epsilonDecay / eDecayEnd
-
-    # Create number of individual data points for run length
-    dataPoints = episodes / resolution
+    decay = values[e]
 
     # Initialise double or single QL class with the doubleFlag value provided
     if doubleFlag: q = DblKew(initialisation, policy, environment, contOS,
