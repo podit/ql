@@ -41,7 +41,7 @@ exponent = -0.75
 length = 1
 
 episodes = 1000
-runs = 1000
+runs = 3
     
 gamma = 0.99
 alpha = 0.5
@@ -64,14 +64,14 @@ dataPoints = episodes / resolution
 #   corresponding lists of hyperparameters to be used
 start = timer()
 
-experiments = 11
+experiments = 9
 
 aggr_rewards = [None] * experiments
 avg = [None] * experiments
 
-ind = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+ind = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-decays = [0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 0.99, 0.999]
+decays = [0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9]
 
 for e in range(experiments):
 
@@ -98,7 +98,7 @@ for e in range(experiments):
             np.std(aggr_rewards[e]), 'Stds:',
             np.average(aggr_stds), np.std(aggr_stds))
     
-    print(e, '/', experiments)
+    print(e+1, '/', experiments)
 
     # Print hyper parameters for testing
     print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
@@ -117,10 +117,10 @@ print('Method used:', policy)
 print('Double?:', doubleFlag)
 input('Show plots')
 data = aggr_rewards
-plt.boxPlot(data, avg, ind)
+#plt.boxPlot(data, avg, ind)
 row = int(math.floor(math.sqrt(experiments)))
 col = int(experiments/row)
-plt.hist(data, row, col, experiments)
+plt.histExp(data, row, col, experiments)
 #plt.plotAll(aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max, policy)
 #plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
 #        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),

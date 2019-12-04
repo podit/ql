@@ -191,16 +191,11 @@ class SinKew:
                 #   e-Greedy method for SARSA policy
                 if self.polS:
                     a_, d_a_ = self.e_greedy(epsilon, d_s)
-                    #_s_, r_, d_, info = self.env.step(a_)
-                    #if d_:
-                    #    Q_ = 0
-                    #else:
-                    #    Q_ = self.Q[d_s_ + (d_a_,)]
-                    Q_ = self.Q[d_s_ + (d_a_,)]
+                    
                     # Update Q-value with Bellman Equation
                     self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
                             + alpha * (reward + gamma *\
-                            Q_ - self.Q[d_s + (d_a,)])
+                            self.Q[d_s_ + (d_a_,)] - self.Q[d_s + (d_a,)])
             
             # If task is completed set Q-value to zero so no penalty is applied
             if done:
@@ -209,12 +204,12 @@ class SinKew:
                     pass
                 # Apply normal penalty to the current q value(q_lrn)
                 elif self.polQ: self.Q[d_s + (d_a, )] = penalty
-                elif self.polS: self.Q[d_s + (d_a, )] = penalty
+                elif self.polS:
                     # Update Q-value with Bellman Equation with next SA value
                     #   as 0 when the next state is terminal
-                    #self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
-                    #        + alpha * (reward + gamma *\
-                    #        penalty - self.Q[d_s + (d_a,)])
+                    self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
+                            + alpha * (reward + gamma *\
+                            penalty - self.Q[d_s + (d_a,)])
                 # If log penalties are used apply penalty respective to the
                 #   exponent of the relative position 1 to 10
                 elif modeL and steps > length and epsilon == 0:

@@ -36,10 +36,13 @@ def boxPlot(data, avg, ind):
 def histExp(data, row, col, experiments):
 
     fig, ax = plt.subplots(row, col)
+    e = 0
 
-    for e in range(experiments):
-        ax[e].hist(data[e], 100)
-        ax[e].title(e)
+    for x in range(row):
+        for y in range(col):
+            ax[x, y].hist(data[e], 100)
+            e += 1
+            ax[x, y].title(str(e))
 
     plt.show()
 
