@@ -27,6 +27,11 @@ def plotAll(rewards, mins, maxs, mthd):
 
     plt.show()
 
+def plotStd(rwd, std):
+    plt.plot(rwd, std, ',b')
+
+    plt.show()
+
 def boxPlot(data, avg, ind):
     fig1, ax1 = plt.subplots()
     ax1.boxplot(data, notch=True)
@@ -42,7 +47,7 @@ def histExp(data, row, col, experiments):
         for y in range(col):
             ax[x, y].hist(data[e], 100)
             e += 1
-            ax[x, y].title(str(e))
+            #ax[x, y].title(str(e))
 
     plt.show()
 

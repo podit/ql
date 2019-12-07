@@ -3,7 +3,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 # Import control script
-import do as d
+import doBin as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
@@ -14,7 +14,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'sarsa'                # q_lrn, sarsa
+policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
@@ -23,7 +23,7 @@ logFlag = False
 
 # Flags to report each run and each resolution step
 # Report run number and average reward from test for each run
-profileFlag = True
+profileFlag = False
 # Report episode and epsilon value as well as reward for each resolution step
 verboseFlag = False
 
@@ -51,7 +51,7 @@ maxSteps = 500
 nTests = 100
 
 # Set penalty to be applied at episode completion (positive acts as reward)
-penalty = -2
+penalty = 0
 
 # Used when logFlag is enabled
 # Set exponent for exponential penalty and length of applied steps
@@ -61,7 +61,9 @@ length = 5
 # Set number of episodes and runs to be completed by the agent
 episodes = 1000
 # Episodes constitute run length before testing
-runs = 1000
+runs = 100
+
+bins = 10
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -74,17 +76,9 @@ epsilon = 0.1
 
 # Used whrn eDecayFlag is enabled
 # Set decay coefficient
-decay = 2
+decay = 1.5
 # Set epsilon start value
-epsilonDecay = 0.1
-# Calculate the decay period
-eDecayStart = 100
-eDecayEnd = (episodes // decay) + eDecayStart
-# Calculate decay rate
-eDecayRate = epsilonDecay / eDecayEnd
-
-# Create number of individual data points for run length
-dataPoints = episodes / resolution
+epsilonDecay = 0.25
 
 # Start experiment timer
 start = timer()
@@ -92,17 +86,28 @@ start = timer()
 # Number of experimental parameters
 experiments = 6
 
-# List of experimental parameters to be tested
-values = [3, 2, 1.5, 1.25, 1.1, 1]
+ind = [1, 2, 3, 4, 5, 6]
 
+# List of experimental parameters to be tested
+values = [250, 500, 750, 1000, 2000, 3000]
 # List of values to be revorded and compared in boxplot
 aggr_rewards = [None] * experiments
+avg = [None] * experiments
 
 # Iterate through each experimental value and run Q-learning
 for e in range(experiments):
 
     # Chenge value to the correponding hyper-parameter
-    decay = values[e]
+    episodes = values[e]
+
+    # Calculate the decay period
+    eDecayStart = 1
+    eDecayEnd = episodes // decay
+    # Calculate decay rate
+    eDecayRate = epsilonDecay / eDecayEnd
+
+    # Create number of individual data points for run length
+    dataPoints = episodes / resolution
 
     # Initialise double or single QL class with the doubleFlag value provided
     if doubleFlag: q = DblKew(initialisation, policy, environment, contOS,
@@ -116,9 +121,11 @@ for e in range(experiments):
     #   recording performance of tests and training for plotting
     aggr_rewards[e], aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
             aggr_ts_r_uq, aggr_ts_r_lq =\
-            d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
+            d.do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
             eDecayRate, penalty, exponent, length, renderTest)
+
+    avg[e] = np.average(aggr_rewards[e])
 
     # Print the average reward and standard deviation of test results for
     #   all the runs over the experiment
@@ -149,8 +156,8 @@ print('Double?:', doubleFlag)
 print('Environment:', environment)
 # Wait for input to show plot
 input('Show plots')
-plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
-        np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),
-        np.mean(aggr_ts_r_lq, axis=0), policy)
+print(values)
+data = aggr_rewards
+plt.boxPlot(data, avg, ind)
 
 

@@ -14,7 +14,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'q_lrn'                # q_lrn, sarsa
+policy = 'sarsa'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
@@ -46,7 +46,7 @@ discretisation = 8
 resolution = 5
 
 # Set max steps in the environment
-maxSteps = 5000
+maxSteps = 500
 # Set number of tests to be run (average is reported)
 nTests = 100
 
@@ -59,7 +59,7 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 5000
+episodes = 1000
 # Episodes constitute run length before testing
 runs = 1000
 

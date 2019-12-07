@@ -61,22 +61,22 @@ length = 5
 # Set number of episodes and runs to be completed by the agent
 episodes = 1000
 # Episodes constitute run length before testing
-runs = 100
+runs = 1000
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
-gamma = 0.99
+gamma = 0.999
 # Learning rate
-alpha = 0.5
+alpha = 0.1
 
 # Set epsilon value for constant e-greedy method
 epsilon = 0.1
 
 # Used whrn eDecayFlag is enabled
 # Set decay coefficient
-decay = 1.25
+decay = 2
 # Set epsilon start value
-epsilonDecay = 0.75
+epsilonDecay = 0.5
 # Calculate the decay period
 eDecayStart = 1
 eDecayEnd = episodes // decay
@@ -132,3 +132,5 @@ print('Discretisation Factor:', discretisation)
 print('Method used:', policy)
 print('Double?:', doubleFlag)
 print('Environment:', environment)
+input('sho')
+plt.plotStd(aggr_reward, aggr_stds)

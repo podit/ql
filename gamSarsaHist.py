@@ -44,7 +44,7 @@ episodes = 1000
 runs = 1000
     
 gamma = 0.99
-alpha = 0.5
+alpha = 0.1
 
 epsilon = 0.1
 
@@ -71,11 +71,11 @@ avg = [None] * experiments
 
 ind = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
-decays = [0.0001, 0.001, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2]
+decays = [0.99999, 0.9999, 0.9995, 0.999, 0.9975, 0.995, 0.9925, 0.99, 0.975, 0.95, 0.925, 0.9]
 
 for e in range(experiments):
 
-    alpha = decays[e]
+    gamma = decays[e]
 
     # Initialise double or single Q-learning class dependent on the flag provided
     if doubleFlag: q = DblKew(initialisation, policy, environment, contOS, contAS,

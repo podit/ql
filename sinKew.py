@@ -55,8 +55,8 @@ class SinKew:
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
             if self.environment == 'CartPole-v1':
-                self.os_high[1], self.os_high[3] = 5, 5
-                self.os_low[1], self.os_low[3] = -5, -5
+                self.os_high[1], self.os_high[3] = 4.5, 4.5
+                self.os_low[1], self.os_low[3] = -4.5, -4.5
 
             # Discretize the observation space
             self.discrete_os_size = [self.dis] * len(self.os_high)
@@ -82,7 +82,7 @@ class SinKew:
         
         # Initialise q-table with supplied type
         if self.initialisation == 'uniform':
-            self.Q = np.random.uniform(low = 0, high = 2, size=(
+            self.Q = np.random.uniform(low = -2, high = 0, size=(
                 self.discrete_os_size + self.discrete_as_size))
         elif self.initialisation == 'zeros':
             self.Q = np.zeros((self.discrete_os_size +
