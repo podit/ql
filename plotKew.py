@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
 
+font = {'family': 'serif',
+        'color':  'black',
+        'weight': 'normal',
+        'size': 11,
+        }
 
 # Plotting function to plot timesteo rewards to show how the average agent
 #   reward increases over the training period by the specified resolution
@@ -29,6 +34,8 @@ def plotAll(rewards, mins, maxs, mthd):
 
 def plotStd(rwd, std):
     plt.plot(rwd, std, ',b')
+    plt.xlabel('reward', fontdict=font)
+    plt.ylabel('standard deviation', fontdict=font)
 
     plt.show()
 
