@@ -20,7 +20,7 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         # Reset datapoints iterator for each run
         dp = 0
         # Reset decaying epsilon to starting value
-        if eDecayFlag: epsilon = epsilonDecay
+        #if eDecayFlag: epsilon = epsilonDecay
 
         # Create arrays to store timestep values for profiling training
         timestep_reward = np.zeros(int(dataPoints))
@@ -39,13 +39,20 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         for episode in range(episodes):
             episode += 1
             
-            # Perform learning for each episode
-            q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
-
             # Check for epsilon decay flag
             if eDecayFlag:
                 # Decay epsilon values during epsilon decay range
-                epsilon = 1 / episode
+                if eDecayEnd >= episode >= eDecayStart:
+                    epsilon -= eDecayRate
+                    # Prevent epsilon from going negative
+                    if epsilon < 0:
+                        epsilon = 0
+            else: epsilon = 1 / episode
+
+            gamma = 1 / episode
+
+            # Perform learning for each episode
+            q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
 
             # Record descriptive statistics at each resolution step
             if episode % resolution == 0:
