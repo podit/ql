@@ -49,7 +49,7 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
                         epsilon = 0
             else: epsilon = 1 / episode
 
-            gamma = 1 / episode
+            #gamma = 1 / episode
 
             # Perform learning for each episode
             q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
