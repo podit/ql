@@ -3,7 +3,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 # Import control script
-import do as d
+import doExp as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
@@ -14,7 +14,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'sarsa'                # q_lrn, sarsa
+policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
@@ -67,7 +67,7 @@ runs = 1000
 # Discount factor
 gamma = 0.999
 # Learning rate
-alpha = 0.1
+alpha = 0.5
 
 # Set epsilon value for constant e-greedy method
 epsilon = 0.1
