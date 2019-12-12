@@ -33,7 +33,7 @@ discretisation = 8
 
 resolution = 5
 
-maxSteps = 1000
+maxSteps = 500
 nTests = 100
 
 penalty = 0                        # penalty value

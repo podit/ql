@@ -55,8 +55,8 @@ class SinKew:
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
             if self.environment == 'CartPole-v1':
-                self.os_high[1], self.os_high[3] = 5, 5
-                self.os_low[1], self.os_low[3] = -5, -5
+                self.os_high[1], self.os_high[3] = 4.5, 4.5
+                self.os_low[1], self.os_low[3] = -4.5, -4.5
 
             # Discretize the observation space
             self.discrete_os_size = [self.dis] * len(self.os_high)
@@ -176,7 +176,6 @@ class SinKew:
             if self.cont_os: d_s_ = self.get_discrete_state(s_)
             else: d_s_ = s_
 
-            #gamma = 1 - math.exp(exponent * self.N[d_s + (d_a, )])
             self.N[d_s + (d_a, )] += 1
 
             # If max steps have been exceeded set episode to complete
@@ -208,10 +207,7 @@ class SinKew:
                 if maxS:
                     pass
                 # Apply normal penalty to the current q value(q_lrn)
-                elif self.polQ: #self.Q[d_s + (d_a, )] = penalty
-                    self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
-                            + alpha * (reward + gamma *\
-                            penalty - self.Q[d_s + (d_a,)])
+                elif self.polQ: self.Q[d_s + (d_a, )] = penalty
                 elif self.polS:
                     # Update Q-value with Bellman Equation with next SA value
                     #   as 0 when the next state is terminal

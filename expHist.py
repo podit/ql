@@ -3,7 +3,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 # Import control script
-import do as d
+import doExp as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
@@ -18,7 +18,7 @@ policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
-eDecayFlag = True
+eDecayFlag = False
 logFlag = False
 
 # Flags to report each run and each resolution step
@@ -34,7 +34,6 @@ renderTrain = False
 
 # Set openai gym environment (CartPole and MountainCar have been tested)
 environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
-#environment = 'MountainCar-v0'
 
 # Flags for continuous observation and action spaces
 contOS = True
@@ -56,17 +55,17 @@ penalty = 0
 
 # Used when logFlag is enabled
 # Set exponent for exponential penalty and length of applied steps
-exponent = -0.75
+exponent = -0.05
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 100000
+episodes = 100
 # Episodes constitute run length before testing
-runs = 100
+runs = 6
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
-gamma = 0.995
+gamma = 0.99
 # Learning rate
 alpha = 0.5
 
@@ -75,9 +74,9 @@ epsilon = 0.1
 
 # Used whrn eDecayFlag is enabled
 # Set decay coefficient
-decay = 2
+decay = 1.5
 # Set epsilon start value
-epsilonDecay = 0.5
+epsilonDecay = 0.25
 # Calculate the decay period
 eDecayStart = 1
 eDecayEnd = episodes // decay
@@ -113,7 +112,6 @@ print('Total average reward:',
         np.std(aggr_rewards), 'Stds:',
         np.average(aggr_stds), np.std(aggr_stds))
 
-
 # Print experiment number to show progress
 #print('Expreiment:', e, 'of:', experiments)
 # Print experiment parameters
@@ -134,5 +132,10 @@ print('Discretisation Factor:', discretisation)
 print('Method used:', policy)
 print('Double?:', doubleFlag)
 print('Environment:', environment)
-input('sho')
-plt.plotStd(aggr_rewards, aggr_stds)
+data = aggr_rewards
+row = 1
+col = 1
+experiments = 1
+input('hostograme')
+print(np.max(q.N))
+plt.hist(data)

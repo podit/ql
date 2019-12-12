@@ -33,7 +33,7 @@ discretisation = 8
 
 resolution = 5
 
-maxSteps = 1000
+maxSteps = 500
 nTests = 100
 
 penalty = 0                        # penalty value
@@ -72,7 +72,7 @@ avg = [None] * experiments
 ind = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 #decays = [0.0001, 0.001, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2]
-decays = [0.1, 0.2, 0.3, 0,35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9]
+decays = [0.1, 0.2, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9]
 
 for e in range(experiments):
 

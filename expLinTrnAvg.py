@@ -7,7 +7,7 @@ import doExp as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
-from expSinKew import SinKew
+from nuSinKew import SinKew
 from dblKew import DblKew
 
 # Set initialisation policy for Q-table
@@ -18,7 +18,7 @@ policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
-eDecayFlag = True
+eDecayFlag = False
 logFlag = False
 
 # Flags to report each run and each resolution step
@@ -55,7 +55,7 @@ penalty = 0
 
 # Used when logFlag is enabled
 # Set exponent for exponential penalty and length of applied steps
-exponent = -0.75
+exponent = -0.005
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
@@ -65,9 +65,9 @@ runs = 1000
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
-gamma = 1
+gamma = 0.99
 # Learning rate
-alpha = 0.6
+alpha = 0.5
 
 # Set epsilon value for constant e-greedy method
 epsilon = 0.1

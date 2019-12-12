@@ -7,7 +7,7 @@ import doBin as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
-from sinKew import SinKew
+from expSinKew import SinKew
 from dblKew import DblKew
 
 # Set initialisation policy for Q-table
@@ -18,7 +18,7 @@ policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flags for double Q-learning, epsilon decay and expontntial penalties
 doubleFlag = False
-eDecayFlag = True
+eDecayFlag = False
 logFlag = False
 
 # Flags to report each run and each resolution step

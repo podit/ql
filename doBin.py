@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from timeit import default_timer as timer
 
@@ -36,7 +37,7 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             
             # Start split timer for each run
             start_split = timer()
-
+            exp = 1 / (episodes / 4)
             # Iterate through each episode in a run and add one to skip epsiode 0
             for episode in range(episodes):
                 episode += 1
@@ -52,6 +53,10 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
                         # Prevent epsilon from going negative
                         if epsilon < 0:
                             epsilon = 0
+
+                epsilon = 0.5 * math.exp(-exp * episode)
+                gamma = 1 + -math.exp(-exp * episode)
+                alpha = 0.5 + 0.5 * math.exp(-exp * episode)
 
                 # Record descriptive statistics at each resolution step
                 if episode % resolution == 0:

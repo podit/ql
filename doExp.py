@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from timeit import default_timer as timer
 
@@ -35,6 +36,8 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         # Start split timer for each run
         start_split = timer()
 
+        exp = 1 / (episodes / 5)
+        exponent = exp
         # Iterate through each episode in a run and add one to skip epsiode 0
         for episode in range(episodes):
             episode += 1
@@ -47,9 +50,11 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
                     # Prevent epsilon from going negative
                     if epsilon < 0:
                         epsilon = 0
-            else: epsilon = 1 / episode
+            else: epsilon = 0.5 * math.exp(-exp * episode)
 
-            #gamma = 1 / episode
+            gamma = 1 + -math.exp(-exp * episode)
+            #alpha = 0.5 + 0.5*math.exp(-exp * episode)
+            alpha = math.exp(-exp * episode)
 
             # Perform learning for each episode
             q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
@@ -68,7 +73,9 @@ def do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
                         q.timestep_reward_res, 25)
                 dp += 1
         
-
+        
+        #input('w80')
+        #print(np.amax(q.N))
         # Check if testing is to be rendered and if so wait for user input
         if renderFlag: input('Start testing (rendered)')
         # Perform testing on trained Q table after episodes are completed

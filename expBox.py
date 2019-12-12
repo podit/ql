@@ -3,7 +3,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 # Import control script
-import do as d
+import doBin as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
@@ -63,20 +63,22 @@ episodes = 1000
 # Episodes constitute run length before testing
 runs = 100
 
+bins = 10
+
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
-gamma = 0.99
+gamma = 0.999
 # Learning rate
-alpha = 0.5
+alpha = 0.1
 
 # Set epsilon value for constant e-greedy method
 epsilon = 0.1
 
 # Used whrn eDecayFlag is enabled
 # Set decay coefficient
-decay = 2
+decay = 1.5
 # Set epsilon start value
-epsilonDecay = 0.5
+epsilonDecay = 0.25
 
 # Start experiment timer
 start = timer()
@@ -119,7 +121,7 @@ for e in range(experiments):
     #   recording performance of tests and training for plotting
     aggr_rewards[e], aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
             aggr_ts_r_uq, aggr_ts_r_lq =\
-            d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
+            d.do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
             eDecayRate, penalty, exponent, length, renderTest)
 
