@@ -16,14 +16,16 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
     aggr_ts_r_uq = np.zeros((runs, int(dataPoints)))
     aggr_ts_r_lq = np.zeros((runs, int(dataPoints)))
 
+    # Calculate decay esponent -TODO:change division to variable
+    if eDecayFlag and eDecayExp: exp = 1 / (episodes / 5)
+    
     # Iterate through each run
     for r in range(runs):
+        # Create array to store rewards for bin length and iterate bins
         avg_rwd = np.zeros(bins)
         for b in range(bins):
             # Reset datapoints iterator for each run
             dp = 0
-            # Reset decaying epsilon to starting value
-            if eDecayFlag: epsilon = epsilonDecay
 
             # Create arrays to store timestep values for profiling training
             timestep_reward = np.zeros(int(dataPoints))
@@ -37,26 +39,36 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             
             # Start split timer for each run
             start_split = timer()
-            exp = 1 / (episodes / 4)
-            # Iterate through each episode in a run and add one to skip epsiode 0
+            
+            # Reset decaying epsilon to starting value
+            if eDecayFlag and not eDecayExp: epsilon = epsilonDecay
+
+            # Iterate through each episode in a run
             for episode in range(episodes):
-                episode += 1
+                #episode += 1
+                
+                # Check for epsilon decay flag
+                if eDecayFlag:
+                    # Check for linear epsilon decay
+                    if not eDecayExp:
+                        # Decay epsilon values during epsilon decay range
+                        if eDecayEnd >= episode >= eDecayStart:
+                            epsilon -= eDecayRate
+                            # Prevent epsilon from going negative
+                            if epsilon < 0:
+                                epsilon = 0
+                    # Check for exponential epsilon decay and calculate from episode
+                    elif eDecayExp: epsilon = 0.5 * math.exp(-exp * episode)
+
+                # Check alpha decay flag and set alpha according episode
+                if aDecayFlag:
+                    alpha = math.exp(-exp * episode)
+                # Also for gamma -TODO:replace hardcoded intersect values
+                if gDecayFlag:
+                    gamma = 1 + -math.exp(-exp * episode)
                 
                 # Perform learning for each episode
                 q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
-
-                # Check for epsilon decay flag
-                if eDecayFlag:
-                    # Decay epsilon values during epsilon decay range
-                    if eDecayEnd >= episode >= eDecayStart:
-                        epsilon -= eDecayRate
-                        # Prevent epsilon from going negative
-                        if epsilon < 0:
-                            epsilon = 0
-
-                epsilon = 0.5 * math.exp(-exp * episode)
-                gamma = 1 + -math.exp(-exp * episode)
-                alpha = 0.5 + 0.5 * math.exp(-exp * episode)
 
                 # Record descriptive statistics at each resolution step
                 if episode % resolution == 0:

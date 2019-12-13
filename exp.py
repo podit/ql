@@ -7,23 +7,32 @@ import do as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
-from expSinKew import SinKew
+from sinKew import SinKew
 from dblKew import DblKew
 
 # Set initialisation policy for Q-table
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'q_lrn'                # q_lrn, sarsa
+policy = 'sarsa'                # q_lrn, sarsa
 
-# Control flags for double Q-learning, epsilon decay and expontntial penalties
-doubleFlag = False
+# Control flag for double Q-learning
+doubleFlag = True
+# Epsilon decay linearly
 eDecayFlag = True
-logFlag = False
+eDecayExp = True
+
+aDecayFlag = False
+
+# Set gamma decay flag for episodic OR decay for number of encounters with each
+#   state action pair
+gDecayFlag = False
+gDecayEncounter = False
+if gDecayFlag and gDecayEncounter: print('Episodic decay will not be followed')
 
 # Flags to report each run and each resolution step
 # Report run number and average reward from test for each run
-profileFlag = True
+profileFlag = False
 # Report episode and epsilon value as well as reward for each resolution step
 verboseFlag = False
 
@@ -60,9 +69,9 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 100000
+episodes = 100
 # Episodes constitute run length before testing
-runs = 100
+runs = 1000 
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -73,7 +82,7 @@ alpha = 0.5
 # Set epsilon value for constant e-greedy method
 epsilon = 0.1
 
-# Used whrn eDecayFlag is enabled
+# Used whrn eDecayFlag is enabled to control linear epsilon decay episodically
 # Set decay coefficient
 decay = 2
 # Set epsilon start value
@@ -92,11 +101,11 @@ start = timer()
 
 # Initialise double or single QL class with the doubleFlag value provided
 if doubleFlag: q = DblKew(initialisation, policy, environment, contOS, contAS,
-            discretisation, maxSteps, nTests, logFlag, verboseFlag, renderTest,
-            renderTrain)
+            discretisation, maxSteps, nTests, gDecayEncounter, verboseFlag,
+            renderTest, renderTrain)
 else: q = SinKew(initialisation, policy, environment, contOS, contAS,
-            discretisation, maxSteps, nTests, logFlag, verboseFlag, renderTest,
-            renderTrain)
+            discretisation, maxSteps, nTests, gDecayEncounter, verboseFlag,
+            renderTest, renderTrain)
 
 # Run experiment passing relevent variables to do script to run QL,
 #   recording performance of tests and training for plotting
@@ -104,7 +113,8 @@ aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
         aggr_ts_r_uq, aggr_ts_r_lq =\
         d.do(q, runs, episodes, resolution, dataPoints, profileFlag, eDecayFlag,
         gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
-        eDecayRate, penalty, exponent, length, renderTest)
+        eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent,
+        length, renderTest)
 
 # Print the average reward and standard deviation of test results for
 #   all the runs over the experiment
@@ -122,8 +132,8 @@ print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
 if eDecayFlag: print('Decaying Epsilon Start:', epsilonDecay, 'Decay:',
         decay, 'Rate:', eDecayRate)
 else: print('Epsilon:', epsilon)
-if logFlag: print('Exponential penalties exponent:', exponent, 'Length:',
-        length)
+#if logFlag: print('Exponential penalties exponent:', exponent, 'Length:',
+#        length)
 print('------------==========================------------')
 
 # End timer and print time
@@ -136,3 +146,6 @@ print('Double?:', doubleFlag)
 print('Environment:', environment)
 input('sho')
 plt.plotStd(aggr_rewards, aggr_stds)
+#plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
+#            np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),
+#            np.mean(aggr_ts_r_lq, axis=0))

@@ -10,13 +10,16 @@ font = {'family': 'serif',
 #   reward increases over the training period by the specified resolution
 def plot(rewards, mins, maxs, uq, lq):
     #plt.title(mthd)
-    plt.xlabel('Episodes')
-    plt.ylabel('Reward')
-    plt.plot(rewards)
-    plt.plot(mins)
-    plt.plot(maxs)
-    plt.plot(uq)
-    plt.plot(lq)
+    plt.xlabel('Episode', fontdict=font)
+    plt.ylabel('Reward', fontdict=font)
+    plt.plot(rewards, label='average')
+    plt.plot(mins, label='minimum')
+    plt.plot(maxs, label='maximum')
+    plt.plot(uq, label='upper')
+    plt.plot(lq, label='lower')
+
+    plt.legend(family='serif')
+    #plt.setp(L.texts, fontdict=font)
 
     plt.show()
 
