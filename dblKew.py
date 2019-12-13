@@ -4,7 +4,7 @@ import numpy as np
 
 # Q-learning class to train and test q table for given environment 
 class DblKew:   
-    def __init__(self, init, pol, env, cOS, cAS, dis, maxS, nTst, log, ver,
+    def __init__(self, init, pol, env, cOS, cAS, dis, maxS, nTst, gDec, ver,
             rTst, rTrn):
 
         # Set poliy bools for control of Q-learning
@@ -16,12 +16,6 @@ class DblKew:
             self.polS = True
         else: print('Not a valid control policy')
 
-        # Set log flag for training
-        if log:
-            self.log = True
-        else:
-            self.log = False
-
         # Set constant flags and values for the Q-learning object
         self.initialisation = init
         self.environment = env
@@ -30,7 +24,7 @@ class DblKew:
         self.dis = dis
         self.maxSteps = maxS
         self.nTests = nTst
-        self.logFlag = log
+        self.gDecayFlag = gDec
         self.verboseFlag = ver
         self.renderTest = rTst
         self.renderTrain = rTrn
@@ -98,6 +92,10 @@ class DblKew:
                 self.discrete_as_size))
         else: print('initialisation method not valid')
 
+        # Create counter array for calculating decayed gamma values
+        if self.gDecayFlag:
+            self.N = np.ones((self.discrete_os_size + self.discrete_as_size))
+        
         return
 
     # Get the discrete state from the state supplied by the environment
@@ -139,6 +137,9 @@ class DblKew:
         maxS = False
         done = False
         render = False
+
+        # Create value for recording total reward per episode
+        total_reward = 0
         
         # Reset environment for new episode and get initial discretized state
         if self.cont_os: d_s = self.get_discrete_state(self.env.reset())
@@ -146,32 +147,22 @@ class DblKew:
             s = self.env.reset()
             d_s = s
 
-        # Create numpy arrays and set flag for log mode
-        if self.log:
-            modeL = True
-            history_o = np.zeros((length, len(d_s)))
-            history_a = np.zeros(length)
-            history_p = np.zeros(length)
-        else:
-            modeL = False
-
         # Report episode and epsilon and set the episode to be rendered
         #   if the resolution is reached
         if episode % self.resolution == 0 and episode != 0:
             if self.verboseFlag: print(episode, epsilon)
             if self.renderTrain: render = True
-
-        # Create values for recording rewards and task completion
-        total_reward = 0
         
         # Get initial action using e-Greedy method for SARSA policy
         if self.polS: a, d_a = self.e_greedy(epsilon, d_s)
 
         # Loop the task until task is completed or max steps are reached
         while not done:
-            p = np.random.random()
-
+            steps += 1
             if render: self.env.render()
+            
+            # Get random value to choose which Q-table to update
+            p = np.random.random()
             
             # Get initial action using e-Greedy method for Q-Lrn policy
             if self.polQ: a, d_a = self.e_greedy(epsilon, d_s)
@@ -191,50 +182,44 @@ class DblKew:
                 
                 # Select next action based on next discretized state using
                 #   e-Greedy method for SARSA policy
-                if self.polS: a_, d_a_ = self.e_greedy(epsilon, d_s)
+                if self.polS: a_, d_a_ = self.e_greedy(epsilon, d_s_)
                 
                 # Perform Bellman equation to update Q-values in 50:50 pattern
                 if p < 0.5:
-                    oneA = np.argmax(self.Q1[d_s_])
-                    two = self.Q2[d_s_ + (oneA, )]
-                    #print(oneA, two, self.Q1[d_s, (d_a, )], p)
+                    if self.polQ:
+                        oneA = np.argmax(self.Q1[d_s_])
+                        two = self.Q2[d_s_ + (oneA, )]
+
+                    if self.polS: two = self.Q2[d_s_ + (d_a_, )]
 
                     self.Q1[d_s + (d_a, )] = self.Q1[d_s + (d_a, )] + alpha *\
-                            (reward + gamma * two -\
-                            self.Q1[d_s + (d_a, )])
+                            (reward + gamma * two - self.Q1[d_s + (d_a, )])
                 else:
-                    twoA = np.argmax(self.Q2[d_s_])
-                    one = self.Q1[d_s_ + (twoA, )]
-                    #print(twoA, one, self.Q2[d_s, (d_a, )], p)
+                    if self.polQ:
+                        twoA = np.argmax(self.Q2[d_s_])
+                        one = self.Q1[d_s_ + (twoA, )]
                     
+                    if self.polS: one = self.Q2[d_s_ + (d_a_, )]
+
                     self.Q2[d_s + (d_a, )] = self.Q2[d_s + (d_a, )] + alpha *\
-                            (reward + gamma * one -\
-                            self.Q2[d_s + (d_a, )])
+                            (reward + gamma * one - self.Q2[d_s + (d_a, )])
 
             # If task is completed set Q-value to zero so no penalty is applied
             if done:
                 # If max steps have been reached do not apply penalty
                 if maxS:
                     pass
-                # Apply penalties to corresponding Q-table for the previous
-                #   <length> states and actions using the recoreded p value
-                #   for each to apply change to correct table
-                elif modeL and steps > length and epsilon == 0:
-                    for i in range(length):
-                        if history_p[i] < 0.5:
-                            self.Q1[tuple(history_o[i].astype(np.int)) +\
-                                    (int(history_a[i]), )]\
-                                    += penalty * math.exp(exponent) ** i
-                        else:
-                            self.Q2[tuple(history_o[i].astype(np.int)) +\
-                                    (int(history_a[i]), )]\
-                                    += penalty * math.exp(exponent) ** i
-                # Otherwise apply normal penalty to Q-tables in 50:50 pattern
                 else:
+                    # Update Q-value with Bellman Equation with next SA value
+                    #   as 0 when the next state is terminal in 50:50 pattern
                     if p < 0.5:
-                        self.Q1[d_s + (d_a, )] = penalty
+                        self.Q1[d_s + (d_a, )] = self.Q1[d_s + (d_a,)]\
+                                + alpha * (reward + gamma *\
+                                penalty - self.Q1[d_s + (d_a,)])
                     else:
-                        self.Q2[d_s + (d_a, )] = penalty
+                        self.Q2[d_s + (d_a, )] = self.Q2[d_s + (d_a,)]\
+                                + alpha * (reward + gamma *\
+                                penalty - self.Q2[d_s + (d_a,)])
 
                 # Iterate the resolution counter and record rewards
                 if self.res == self.resolution: self.res = 0
@@ -252,16 +237,6 @@ class DblKew:
                 # Close the render of the episode if rendered
                 if render: self.env.close()
 
-            # Record states and actions into rolling numpy array for applying
-            #   log panalties
-            if modeL and epsilon == 0:
-                history_o = np.roll(history_o, 1)
-                history_a = np.roll(history_a, 1)
-                history_p = np.roll(history_p, 1)
-                history_o[0] = d_s
-                history_a[0] = d_a
-                history_p[0] = p
-
             # Set next state to current state (Q-Learning) control policy
             if self.polQ: d_s = d_s_
 
@@ -270,7 +245,6 @@ class DblKew:
 
             # If max steps are reached complete episode and set max step flag
             if steps == self.maxSteps: maxS = True
-            steps += 1
         
         return
 
@@ -291,14 +265,14 @@ class DblKew:
             total_reward = 0
             done = False
             
-            # Set greedy flag sets greedy method to be used by e-Greedy
+            # Set greedy flag sets greedy method to be used by e-Greedy method
             epsilon = 0
             greedy = True
             
             # Loop until test conditions are met iterating the steps counter
             while not done:
-                if self.renderTest: self.env.render()
                 steps += 1
+                if self.renderTest: self.env.render()
                 
                 # Get action by e-greedy method
                 a, d_a = self.e_greedy(epsilon, d_s, greedy)
