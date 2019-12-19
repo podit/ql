@@ -69,7 +69,7 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 1000
+episodes = 500
 # Episodes constitute run length before testing
 runs = 100
 
@@ -94,12 +94,14 @@ epsilonDecay = 0.25
 start = timer()
 
 # Number of experimental parameters
-experiments = 8
+experiments = 4
 
-ind = [1, 2, 3, 4, 5, 6]
+ind = [1, 2, 3, 4]
 
 # List of experimental parameters to be tested
-values = [20, 21, 35, 36, 50, 51]
+val1 = ['q_lrn', 'sarsa', 'q_lrn', 'sarsa']
+val2 = [False, False, True, True]
+val3 = [21, 21, 21, 21]
 # List of values to be revorded and compared in boxplot
 aggr_rewards = [None] * experiments
 avg = [None] * experiments
@@ -108,7 +110,9 @@ avg = [None] * experiments
 for e in range(experiments):
 
     # Chenge value to the correponding hyper-parameter
-    discretisation = values[e]
+    policy = val1[e]
+    doubleFlag = val2[e]
+    discretisation = val3[e]
 
     # Calculate the decay period
     eDecayStart = 1

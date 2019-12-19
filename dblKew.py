@@ -49,8 +49,8 @@ class DblKew:
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
             if self.environment == 'CartPole-v1':
-                self.os_high[1], self.os_high[3] = 5, 5
-                self.os_low[1], self.os_low[3] = -5, -5
+                self.os_high[1], self.os_high[3] = 6, 4
+                self.os_low[1], self.os_low[3] = -6, -4
 
             # Discretize the observation space
             self.discrete_os_size = [self.dis] * len(self.os_high)

@@ -49,8 +49,8 @@ class SinKew:
 
             # Set bounds for infinite observation spaces in 'CartPole-v1'
             if self.environment == 'CartPole-v1':
-                self.os_high[1], self.os_high[3] = 4.5, 4.5
-                self.os_low[1], self.os_low[3] = -4.5, -4.5
+                self.os_high[1], self.os_high[3] = 6, 4
+                self.os_low[1], self.os_low[3] = -6, -4
 
             # Discretize the observation space
             self.discrete_os_size = [self.dis] * len(self.os_high)
@@ -96,9 +96,16 @@ class SinKew:
     def get_discrete_state(self, state):
         
         discrete_state = ((state - self.os_low) /\
-                self.discrete_os_win_size) - 0.5
+                self.discrete_os_win_size)
         
-        return tuple(discrete_state.astype(np.int))
+        s = tuple(discrete_state.astype(np.int))
+
+        for a in s:
+            if a >= self.dis:
+                print('e-Dumass: ', s, a, state)
+                input('get rekt')
+
+        return s
 
     # Get the continuous action from the discrete action supplied by e-greedy
     def get_continuous_action(self, discrete_action):

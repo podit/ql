@@ -5,7 +5,8 @@ from timeit import default_timer as timer
 # Function to run the various elements of training and testing of a Q-table
 def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
         gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
-        eDecayRate, penalty, exponent, length, renderFlag):
+        eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent, length,
+        renderFlag):
 
     # Create aggregate arrays to store values for run length
     aggr_rewards = np.zeros(runs)

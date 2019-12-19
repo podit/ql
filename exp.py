@@ -14,7 +14,7 @@ from dblKew import DblKew
 initialisation = 'uniform'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'sarsa'                # q_lrn, sarsa
+policy = 'q_lrn'                # q_lrn, sarsa
 
 # Control flag for double Q-learning
 doubleFlag = True
@@ -42,15 +42,15 @@ renderTest = False
 renderTrain = False
 
 # Set openai gym environment (CartPole and MountainCar have been tested)
-environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
-#environment = 'MountainCar-v0'
+#environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
+environment = 'MountainCar-v0'
 
 # Flags for continuous observation and action spaces
 contOS = True
 contAS = False
 # Discretisation factor to set number of bins for continuous
 #   observation/action spaces depending on flags
-discretisation = 8
+discretisation = 51
 
 # Set resolution for bins to record performance every <resolution> epsiodes
 resolution = 5
@@ -69,9 +69,9 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 100
+episodes = 1000
 # Episodes constitute run length before testing
-runs = 1000 
+runs = 1000
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -146,6 +146,6 @@ print('Double?:', doubleFlag)
 print('Environment:', environment)
 input('sho')
 plt.plotStd(aggr_rewards, aggr_stds)
-#plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
-#            np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),
-#            np.mean(aggr_ts_r_lq, axis=0))
+plt.plot(np.mean(aggr_ts_r, axis=0), np.mean(aggr_ts_r_min, axis=0),
+            np.mean(aggr_ts_r_max, axis=0), np.mean(aggr_ts_r_uq, axis=0),
+            np.mean(aggr_ts_r_lq, axis=0))
