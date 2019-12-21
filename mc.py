@@ -1,14 +1,137 @@
 # Import numpy for array managment and timeit to time execution
+import math
 import numpy as np
 from timeit import default_timer as timer
 
+import multiprocessing as mp
+
 # Import control script
-import doBin as d
+#import doBinThr as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
 from sinKew import SinKew
 from dblKew import DblKew
+
+experiments = 4
+
+rwds = [None] * experiments
+avgs = [None] * experiments
+
+# Function to run the various elements of training and testing of a Q-table
+def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
+        gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
+        eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent, length,
+        renderFlag, e, queue):
+
+    # Create aggregate arrays to store values for run length
+    aggr_rewards = np.zeros(runs)
+    aggr_stds = np.zeros(runs)
+    aggr_ts_r = np.zeros((runs, int(dataPoints)))
+    aggr_ts_r_min = np.zeros((runs, int(dataPoints)))
+    aggr_ts_r_max = np.zeros((runs, int(dataPoints)))
+    aggr_ts_r_uq = np.zeros((runs, int(dataPoints)))
+    aggr_ts_r_lq = np.zeros((runs, int(dataPoints)))
+
+    # Calculate decay esponent -TODO:change division to variable
+    if eDecayFlag and eDecayExp: exp = 1 / (episodes / 5)
+    
+    # Iterate through each run
+    for r in range(runs):
+        # Create array to store rewards for bin length and iterate bins
+        avg_rwd = np.zeros(bins)
+        
+        # Start split timer for each run
+        start_split = timer()
+            
+        for b in range(bins):
+            # Reset datapoints iterator for each run
+            dp = 0
+
+            # Create arrays to store timestep values for profiling training
+            timestep_reward = np.zeros(int(dataPoints))
+            timestep_reward_min = np.zeros(int(dataPoints))
+            timestep_reward_max = np.zeros(int(dataPoints))
+            timestep_reward_up_q = np.zeros(int(dataPoints))
+            timestep_reward_low_q = np.zeros(int(dataPoints))
+
+            # Reset environment and Q-tables
+            q.init_env(resolution)
+            
+            # Reset decaying epsilon to starting value
+            if eDecayFlag and not eDecayExp: epsilon = epsilonDecay
+
+            # Iterate through each episode in a run
+            for episode in range(episodes):
+                #episode += 1
+                
+                # Check for epsilon decay flag
+                if eDecayFlag:
+                    # Check for linear epsilon decay
+                    if not eDecayExp:
+                        # Decay epsilon values during epsilon decay range
+                        if eDecayEnd >= episode >= eDecayStart:
+                            epsilon -= eDecayRate
+                            # Prevent epsilon from going negative
+                            if epsilon < 0:
+                                epsilon = 0
+                    # Check for exponential epsilon decay and calculate from episode
+                    elif eDecayExp: epsilon = 0.5 * math.exp(-exp * episode)
+
+                # Check alpha decay flag and set alpha according episode
+                if aDecayFlag:
+                    alpha = math.exp(-exp * episode)
+                # Also for gamma -TODO:replace hardcoded intersect values
+                if gDecayFlag:
+                    gamma = 1 + -math.exp(-exp * episode)
+                
+                # Perform learning for each episode
+                q.lrn(epsilon, episode, penalty, exponent, length, alpha, gamma)
+
+                # Record descriptive statistics at each resolution step
+                if episode % resolution == 0:
+                    timestep_reward[dp] = np.average(
+                            q.timestep_reward_res)
+                    timestep_reward_min[dp] = np.min(
+                            q.timestep_reward_res)
+                    timestep_reward_max[dp] = np.max(
+                            q.timestep_reward_res)
+                    timestep_reward_up_q[dp] = np.percentile(
+                            q.timestep_reward_res, 75)
+                    timestep_reward_low_q[dp] = np.percentile(
+                            q.timestep_reward_res, 25)
+                    dp += 1
+            
+
+            # Check if testing is to be rendered and if so wait for user input
+            if renderFlag: input('Start testing (rendered)')
+            # Perform testing on trained Q table after episodes are completed
+            avg_rwd[b], std_rwd = q.test_qtable() 
+     
+        # Record aggregate values over total run length
+        aggr_rewards[r] = np.mean(avg_rwd)
+        aggr_stds[r] = std_rwd
+        aggr_ts_r[r] = timestep_reward
+        aggr_ts_r_min[r] = timestep_reward_min
+        aggr_ts_r_max[r] = timestep_reward_max
+        aggr_ts_r_uq[r] = timestep_reward_up_q
+        aggr_ts_r_lq[r] = timestep_reward_low_q
+        
+        # Check is profiling flag is set
+        if profileFlag:
+            # Calculate split (total runs) time and report profiling values
+            end_split = timer()
+            segment = end_split - start_split
+            print('Run:', r)
+            print(f'Average reward:{avg_rwd}, std:{std_rwd}')
+            print('Split time:', segment)
+            print('#--------========--------#')
+
+    queue[e].put(aggr_rewards)
+    #avgs[e] = np.average(aggr_rewards)
+
+    # Return aggregate statistics over total length of runs
+    return True
 
 # Set initialisation policy for Q-table
 initialisation = 'uniform'      # uniform, ones, zeros, random
@@ -20,7 +143,7 @@ policy = 'sarsa'                # q_lrn, sarsa
 doubleFlag = True
 # Epsilon decay linearly
 eDecayFlag = True
-eDecayExp = True
+eDecayExp = False
 
 aDecayFlag = False
 
@@ -69,7 +192,7 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 500
+episodes = 1000
 # Episodes constitute run length before testing
 runs = 100
 
@@ -94,7 +217,7 @@ epsilonDecay = 0.25
 start = timer()
 
 # Number of experimental parameters
-experiments = 4
+#experiments = 4
 
 ind = [1, 2, 3, 4]
 
@@ -103,12 +226,18 @@ val1 = ['q_lrn', 'sarsa', 'q_lrn', 'sarsa']
 val2 = [False, False, True, True]
 val3 = [21, 21, 21, 21]
 # List of values to be revorded and compared in boxplot
-aggr_rewards = [None] * experiments
-avg = [None] * experiments
+#aggr_rewards = [None] * experiments
+#avg = [None] * experiments
+
+threads = []
+
+#mp.set_start_method('spawn')
+
+queue = [mp.Queue()] * experiments
 
 # Iterate through each experimental value and run Q-learning
 for e in range(experiments):
-
+    #e_s = timer()
     # Chenge value to the correponding hyper-parameter
     policy = val1[e]
     doubleFlag = val2[e]
@@ -133,46 +262,63 @@ for e in range(experiments):
 
     # Run experiment passing relevent variables to do script to run QL,
     #   recording performance of tests and training for plotting
-    aggr_rewards[e], aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
-            aggr_ts_r_uq, aggr_ts_r_lq =\
-            d.do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
+    #aggr_rewards[e], aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
+    #        aggr_ts_r_uq, aggr_ts_r_lq =\
+            
+    process = mp.Process(target=do, args=(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
             eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent,
-            length, renderTest)
+            length, renderTest, e, queue,))
 
-    avg[e] = np.average(aggr_rewards[e])
+    process.start()
+    threads.append(process)
+    
+    #avg[e] = np.average(aggr_rewards[e])
 
     # Print the average reward and standard deviation of test results for
     #   all the runs over the experiment
-    print('Total average reward:',
-            np.average(aggr_rewards[e]),
-            np.std(aggr_rewards[e]), 'Stds:',
-            np.average(aggr_stds), np.std(aggr_stds))
+    #print('Total average reward:',
+    #        np.average(aggr_rewards[e]),
+    #        np.std(aggr_rewards[e]), 'Stds:',
+    #        np.average(aggr_stds), np.std(aggr_stds))
 
     # Print experiment number to show progress
-    print('Expreiment:', e, 'of:', experiments)
+    #print('Expreiment:', e, 'of:', experiments)
     # Print experiment parameters
-    print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
-            alpha, 'Penalty:', penalty)
-    if eDecayFlag: print('Decaying Epsilon Start:', epsilonDecay, 'Decay:',
-            decay, 'Rate:', eDecayRate)
-    else: print('Epsilon:', epsilon)
+    #print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
+    #        alpha, 'Penalty:', penalty)
+    #if eDecayFlag: print('Decaying Epsilon Start:', epsilonDecay, 'Decay:',
+    #        decay, 'Rate:', eDecayRate)
+    #else: print('Epsilon:', epsilon)
     #if logFlag: print('Exponential penalties exponent:', exponent, 'Length:',
     #        length)
-    print('------------==========================------------')
+    #print('------------==========================------------')
+    #e_e = timer()
+    #print('T:', e_e - e_s)
+e = 0
+for process in threads:
+    rwds[e] = queue[e].get()
+    process.join()
+    e += 1
+
+for e in range(experiments):
+    #rwds[e] = q[e].get()
+    avgs[e] = np.average(rwds[e])
 
 # End timer and print time
 end = timer()
 print('Time:', end-start)
-print('Discretisation Factor:', discretisation)
+#print('Discretisation Factor:', discretisation)
 # Denote the method flag and environment upon completion
-print('Method used:', policy)
-print('Double?:', doubleFlag)
+#print('Method used:', policy)
+#print('Double?:', doubleFlag)
 print('Environment:', environment)
 # Wait for input to show plot
 input('Show plots')
-print(values)
-data = aggr_rewards
-plt.boxPlot(data, avg, ind)
-
+print(val1)
+print(val2)
+print(val3)
+print(avgs, ind) 
+#data = aggr_rewards
+plt.boxPlot(rwds, avgs, ind)
 

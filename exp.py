@@ -11,13 +11,13 @@ from sinKew import SinKew
 from dblKew import DblKew
 
 # Set initialisation policy for Q-table
-initialisation = 'uniform'      # uniform, ones, zeros, random
+initialisation = 'ones'      # uniform, ones, zeros, random
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
-policy = 'q_lrn'                # q_lrn, sarsa
+policy = 'sarsa'                # q_lrn, sarsa
 
 # Control flag for double Q-learning
-doubleFlag = True
+doubleFlag = False
 # Epsilon decay linearly
 eDecayFlag = True
 eDecayExp = True
@@ -32,9 +32,9 @@ if gDecayFlag and gDecayEncounter: print('Episodic decay will not be followed')
 
 # Flags to report each run and each resolution step
 # Report run number and average reward from test for each run
-profileFlag = False
+profileFlag = True
 # Report episode and epsilon value as well as reward for each resolution step
-verboseFlag = False
+verboseFlag = True
 
 # Render flags for testing and training
 renderTest = False
@@ -50,7 +50,7 @@ contOS = True
 contAS = False
 # Discretisation factor to set number of bins for continuous
 #   observation/action spaces depending on flags
-discretisation = 51
+discretisation = 8
 
 # Set resolution for bins to record performance every <resolution> epsiodes
 resolution = 5
@@ -69,7 +69,7 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 1000
+episodes = 750
 # Episodes constitute run length before testing
 runs = 1000
 

@@ -112,7 +112,9 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             print('#--------========--------#')
 
     # Return aggregate statistics over total length of runs
-    return aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
-            aggr_ts_r_uq, aggr_ts_r_lq
+    return True
+
+#aggr_rewards, aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
+#            aggr_ts_r_uq, aggr_ts_r_lq
 
 

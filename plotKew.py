@@ -9,7 +9,7 @@ font = {'family': 'serif',
 # Plotting function to plot timesteo rewards to show how the average agent
 #   reward increases over the training period by the specified resolution
 def plot(rewards, mins, maxs, uq, lq):
-    plt.ylim(0, 500)
+    #plt.ylim(0, 500)
     plt.xlabel('Episode', fontdict=font)
     plt.ylabel('Reward', fontdict=font)
     plt.plot(rewards, label='average')
