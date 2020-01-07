@@ -5,24 +5,18 @@ from timeit import default_timer as timer
 
 import multiprocessing as mp
 
-# Import control script
-#import doBinThr as d
 # Import plotting functions
 import plotKew as plt
 # Import single and double Q-Learning classes
 from sinKew import SinKew
 from dblKew import DblKew
 
-experiments = 4
-
-rwds = [None] * experiments
-avgs = [None] * experiments
-
+# Incorporated control script for parallell execution
 # Function to run the various elements of training and testing of a Q-table
 def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
         gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
-        eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent, length,
-        renderFlag, e, queue):
+        eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent,
+        length, renderFlag, e, queue):
 
     # Create aggregate arrays to store values for run length
     aggr_rewards = np.zeros(runs)
@@ -75,7 +69,7 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
                             # Prevent epsilon from going negative
                             if epsilon < 0:
                                 epsilon = 0
-                    # Check for exponential epsilon decay and calculate from episode
+                    # Check for exponential decay and calculate from episode
                     elif eDecayExp: epsilon = 0.5 * math.exp(-exp * episode)
 
                 # Check alpha decay flag and set alpha according episode
@@ -102,7 +96,6 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
                             q.timestep_reward_res, 25)
                     dp += 1
             
-
             # Check if testing is to be rendered and if so wait for user input
             if renderFlag: input('Start testing (rendered)')
             # Perform testing on trained Q table after episodes are completed
@@ -127,10 +120,9 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
             print('Split time:', segment)
             print('#--------========--------#')
 
+    # Record rewards into multithreaded queue
     queue[e].put(aggr_rewards)
-    #avgs[e] = np.average(aggr_rewards)
 
-    # Return aggregate statistics over total length of runs
     return True
 
 # Set initialisation policy for Q-table
@@ -226,18 +218,15 @@ val1 = ['q_lrn', 'sarsa', 'q_lrn', 'sarsa']
 val2 = [False, False, True, True]
 val3 = [8, 8, 9, 9]
 # List of values to be revorded and compared in boxplot
-#aggr_rewards = [None] * experiments
-#avg = [None] * experiments
+rwds = [None] * experiments
+avgs = [None] * experiments
 
 threads = []
-
-#mp.set_start_method('spawn')
 
 queue = [mp.Queue()] * experiments
 
 # Iterate through each experimental value and run Q-learning
 for e in range(experiments):
-    #e_s = timer()
     # Chenge value to the correponding hyper-parameter
     policy = val1[e]
     doubleFlag = val2[e]
@@ -254,47 +243,23 @@ for e in range(experiments):
 
     # Initialise double or single QL class with the doubleFlag value provided
     if doubleFlag: q = DblKew(initialisation, policy, environment, contOS,
-                contAS, discretisation, maxSteps, nTests, gDecayEncounter, verboseFlag,
-                renderTest, renderTrain)
+                contAS, discretisation, maxSteps, nTests, gDecayEncounter,
+                verboseFlag, renderTest, renderTrain)
     else: q = SinKew(initialisation, policy, environment, contOS, contAS,
                 discretisation, maxSteps, nTests, gDecayEncounter, verboseFlag,
                 renderTest, renderTrain)
 
     # Run experiment passing relevent variables to do script to run QL,
-    #   recording performance of tests and training for plotting
-    #aggr_rewards[e], aggr_stds, aggr_ts_r, aggr_ts_r_min, aggr_ts_r_max,\
-    #        aggr_ts_r_uq, aggr_ts_r_lq =\
-            
-    process = mp.Process(target=do, args=(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
-            gamma, alpha, epsilon, decay, epsilonDecay, eDecayStart, eDecayEnd,
-            eDecayRate, eDecayExp, aDecayFlag, gDecayFlag, penalty, exponent,
-            length, renderTest, e, queue,))
+    #   as a multithreading process
+    process = mp.Process(target=do, args=(q, runs, episodes, bins, resolution,
+            dataPoints, profileFlag, eDecayFlag, gamma, alpha, epsilon, decay,
+            epsilonDecay, eDecayStart, eDecayEnd, eDecayRate, eDecayExp,
+            aDecayFlag, gDecayFlag, penalty, exponent, length, renderTest, e,
+            queue,))
 
     process.start()
     threads.append(process)
     
-    #avg[e] = np.average(aggr_rewards[e])
-
-    # Print the average reward and standard deviation of test results for
-    #   all the runs over the experiment
-    #print('Total average reward:',
-    #        np.average(aggr_rewards[e]),
-    #        np.std(aggr_rewards[e]), 'Stds:',
-    #        np.average(aggr_stds), np.std(aggr_stds))
-
-    # Print experiment number to show progress
-    #print('Expreiment:', e, 'of:', experiments)
-    # Print experiment parameters
-    #print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
-    #        alpha, 'Penalty:', penalty)
-    #if eDecayFlag: print('Decaying Epsilon Start:', epsilonDecay, 'Decay:',
-    #        decay, 'Rate:', eDecayRate)
-    #else: print('Epsilon:', epsilon)
-    #if logFlag: print('Exponential penalties exponent:', exponent, 'Length:',
-    #        length)
-    #print('------------==========================------------')
-    #e_e = timer()
-    #print('T:', e_e - e_s)
 e = 0
 for process in threads:
     rwds[e] = queue[e].get()
@@ -302,23 +267,19 @@ for process in threads:
     e += 1
 
 for e in range(experiments):
-    #rwds[e] = q[e].get()
     avgs[e] = np.average(rwds[e])
 
 # End timer and print time
 end = timer()
 print('Time:', end-start)
-#print('Discretisation Factor:', discretisation)
-# Denote the method flag and environment upon completion
-#print('Method used:', policy)
-#print('Double?:', doubleFlag)
 print('Environment:', environment)
 # Wait for input to show plot
 input('Show plots')
+
 print(val1)
 print(val2)
 print(val3)
 print(avgs, ind) 
-#data = aggr_rewards
+
 plt.boxPlot(rwds, avgs, ind)
 
