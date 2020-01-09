@@ -20,8 +20,10 @@ policy = 'sarsa'                # q_lrn, sarsa
 doubleFlag = False
 # Epsilon decay linearly
 eDecayFlag = True
+# Exponential epsilon decay flag, dependent on epsilon decay flag
 eDecayExp = True
 
+# Alpha decay flag
 aDecayFlag = False
 
 # Set gamma decay flag for episodic OR decay for number of encounters with each
@@ -124,16 +126,12 @@ print('Total average reward:',
         np.average(aggr_stds), np.std(aggr_stds))
 
 
-# Print experiment number to show progress
-#print('Expreiment:', e, 'of:', experiments)
 # Print experiment parameters
 print('Episodes:', episodes, 'Gamma:', gamma, 'Alpha:',
         alpha, 'Penalty:', penalty)
 if eDecayFlag: print('Decaying Epsilon Start:', epsilonDecay, 'Decay:',
         decay, 'Rate:', eDecayRate)
 else: print('Epsilon:', epsilon)
-#if logFlag: print('Exponential penalties exponent:', exponent, 'Length:',
-#        length)
 print('------------==========================------------')
 
 # End timer and print time

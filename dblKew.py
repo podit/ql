@@ -102,7 +102,7 @@ class DblKew:
     def get_discrete_state(self, state):
         
         discrete_state = ((state - self.os_low) /\
-                self.discrete_os_win_size) - 0.5
+                self.discrete_os_win_size)
 
         return tuple(discrete_state.astype(np.int))
 
