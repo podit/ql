@@ -98,14 +98,7 @@ class SinKew:
         discrete_state = ((state - self.os_low) /\
                 self.discrete_os_win_size)
         
-        s = tuple(discrete_state.astype(np.int))
-
-        for a in s:
-            if a >= self.dis:
-                print('e-Dumass: ', s, a, state)
-                input('get rekt')
-
-        return s
+        return tuple(discrete_state.astype(np.int))
 
     # Get the continuous action from the discrete action supplied by e-greedy
     def get_continuous_action(self, discrete_action):
