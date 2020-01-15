@@ -167,7 +167,7 @@ contOS = True
 contAS = False
 # Discretisation factor to set number of bins for continuous
 #   observation/action spaces depending on flags
-discretisation = 8
+discretisation = 14
 
 # Set resolution for bins to record performance every <resolution> epsiodes
 resolution = 5
