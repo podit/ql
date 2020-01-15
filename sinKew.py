@@ -165,7 +165,7 @@ class SinKew:
             if self.cont_os: d_s_ = self.get_discrete_state(s_)
             else: d_s_ = s_
 
-            # If gamma decay flag is set get gamma value and iterate counter
+            # If gamma decay flag, calculate gamma value and iterate counter
             if self.gDecayFlag:
                 gamma = 1 - math.exp(exponent * self.N[d_s + (d_a, )])
                 self.N[d_s + (d_a, )] += 1
@@ -173,22 +173,23 @@ class SinKew:
             # If max steps have been exceeded set episode to complete
             if maxS: done = True
 
-            # If the task is not completed update Q by max future Q-values
+            # If the task is not completed update Q-value by selected policy
             if not done:
+                # Select maximum action of next state for QL (off-policy)
                 if self.polQ:
                     max_future_q = np.max(self.Q[d_s_])
                 
-                    # Update Q-value with Bellman Equation
+                    # Update Q-value with Bellman Equation for selected action
                     self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
                             + alpha * (reward + gamma *\
                             max_future_q - self.Q[d_s + (d_a,)])
 
-                # Select next action based on next discretized state using
-                #   e-Greedy method for SARSA policy
+                # Select next action based on next state using
+                #   e-Greedy method for SARSA (on-policy)
                 if self.polS:
                     a_, d_a_ = self.e_greedy(epsilon, d_s_)
                     
-                    # Update Q-value with Bellman Equation
+                    # Update Q-value with Bellman Equation for selected action
                     self.Q[d_s + (d_a, )] = self.Q[d_s + (d_a,)]\
                             + alpha * (reward + gamma *\
                             self.Q[d_s_ + (d_a_,)] - self.Q[d_s + (d_a,)])

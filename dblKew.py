@@ -181,17 +181,23 @@ class DblKew:
             if not done:
                 
                 # Select next action based on next discretized state using
-                #   e-Greedy method for SARSA policy
+                #   e-Greedy method for SARSA policy if flag is set
                 if self.polS: a_, d_a_ = self.e_greedy(epsilon, d_s_)
                 
                 # Perform Bellman equation to update Q-values in 50:50 pattern
                 if p < 0.5:
+                    # For QL (off-policy) select maximum next action and get
+                    #   corresponding Q-value of other Q-table
                     if self.polQ:
                         oneA = np.argmax(self.Q1[d_s_])
                         two = self.Q2[d_s_ + (oneA, )]
 
+                    # For SARSA (on-policy) get Q-value of other Q-table based
+                    #   on selected next action
                     if self.polS: two = self.Q2[d_s_ + (d_a_, )]
 
+                    # Update Q-value with Bellman Equation using Q-value from
+                    #   other Q-table
                     self.Q1[d_s + (d_a, )] = self.Q1[d_s + (d_a, )] + alpha *\
                             (reward + gamma * two - self.Q1[d_s + (d_a, )])
                 else:

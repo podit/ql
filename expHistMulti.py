@@ -122,7 +122,7 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
 
     # Record rewards into multithreaded queue
     queue[e].put(aggr_rewards)
-    
+
     return True
 
 # Set initialisation policy for Q-table
@@ -159,15 +159,15 @@ renderTest = False
 renderTrain = False
 
 # Set openai gym environment (CartPole and MountainCar have been tested)
-#environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
-environment = 'MountainCar-v0'
+environment = 'CartPole-v1'     # CartPole-v1, MountainCar-v0
+#environment = 'MountainCar-v0'
 
 # Flags for continuous observation and action spaces
 contOS = True
 contAS = False
 # Discretisation factor to set number of bins for continuous
 #   observation/action spaces depending on flags
-discretisation = 8
+discretisation = 6
 
 # Set resolution for bins to record performance every <resolution> epsiodes
 resolution = 5
@@ -186,11 +186,11 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 1000
+episodes = 100
 # Episodes constitute run length before testing
-runs = 100
+runs = 3
 
-bins = 10
+bins = 3
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -218,7 +218,7 @@ ind = [1, 2, 3, 4]
 # List of experimental parameters to be tested
 val1 = ['q_lrn', 'sarsa', 'q_lrn', 'sarsa']
 val2 = [False, False, True, True]
-#val3 = [21, 21, 21, 21]
+#val3 = [8, 8, 9, 9]
 # List of values to be revorded and compared in boxplot
 rwds = [None] * experiments
 avgs = [None] * experiments
@@ -283,5 +283,9 @@ print(val2)
 #print(val3)
 print(avgs, ind) 
 
-plt.boxPlot(rwds, avgs, ind)
+data = rwds
+
+row = int(math.floor(math.sqrt(experiments)))
+col = int(experiments/row)
+plt.histExp(data, row, col, experiments)
 

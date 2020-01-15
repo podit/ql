@@ -126,7 +126,7 @@ def do(q, runs, episodes, bins, resolution, dataPoints, profileFlag, eDecayFlag,
     return True
 
 # Set initialisation policy for Q-table
-initialisation = 'uniform'      # uniform, ones, zeros, random
+initialisation = 'uniform'      # uniform, ones, zeros
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
 policy = 'sarsa'                # q_lrn, sarsa
@@ -135,8 +135,10 @@ policy = 'sarsa'                # q_lrn, sarsa
 doubleFlag = True
 # Epsilon decay linearly
 eDecayFlag = True
+# Exponential epsilon decay flag, dependent on epsilon decay flag
 eDecayExp = False
 
+# Alpha decay flag
 aDecayFlag = False
 
 # Set gamma decay flag for episodic OR decay for number of encounters with each
@@ -165,7 +167,7 @@ contOS = True
 contAS = False
 # Discretisation factor to set number of bins for continuous
 #   observation/action spaces depending on flags
-discretisation = 8
+discretisation = 6
 
 # Set resolution for bins to record performance every <resolution> epsiodes
 resolution = 5
@@ -184,11 +186,11 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 1000
+episodes = 100
 # Episodes constitute run length before testing
-runs = 100
+runs = 3
 
-bins = 10
+bins = 3
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
@@ -216,7 +218,7 @@ ind = [1, 2, 3, 4]
 # List of experimental parameters to be tested
 val1 = ['q_lrn', 'sarsa', 'q_lrn', 'sarsa']
 val2 = [False, False, True, True]
-val3 = [8, 8, 9, 9]
+#val3 = [8, 8, 9, 9]
 # List of values to be revorded and compared in boxplot
 rwds = [None] * experiments
 avgs = [None] * experiments
@@ -230,7 +232,7 @@ for e in range(experiments):
     # Chenge value to the correponding hyper-parameter
     policy = val1[e]
     doubleFlag = val2[e]
-    discretisation = val3[e]
+    #discretisation = val3[e]
 
     # Calculate the decay period
     eDecayStart = 1
@@ -278,7 +280,7 @@ input('Show plots')
 
 print(val1)
 print(val2)
-print(val3)
+#print(val3)
 print(avgs, ind) 
 
 plt.boxPlot(rwds, avgs, ind)

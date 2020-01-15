@@ -11,7 +11,7 @@ from sinKew import SinKew
 from dblKew import DblKew
 
 # Set initialisation policy for Q-table
-initialisation = 'ones'      # uniform, ones, zeros, random
+initialisation = 'ones'      # uniform, ones, zeros
 
 # Set on-policy (sarsa) or off-policy (q_lrn) control method for training
 policy = 'sarsa'                # q_lrn, sarsa

@@ -6,7 +6,7 @@ font = {'family': 'serif',
         'size': 11,
         }
 
-# Plotting function to plot timesteo rewards to show how the average agent
+# Plotting function to plot timestep rewards to show how the average agent
 #   reward increases over the training period by the specified resolution
 def plot(rewards, mins, maxs, uq, lq):
     #plt.ylim(0, 500)
@@ -15,39 +15,34 @@ def plot(rewards, mins, maxs, uq, lq):
     plt.plot(rewards, label='average')
     plt.plot(mins, label='minimum')
     plt.plot(maxs, label='maximum')
-    plt.plot(uq, label='upper')
-    plt.plot(lq, label='lower')
+    plt.plot(uq, label='upr-qrt')
+    plt.plot(lq, label='lwr-qrt')
 
     plt.legend()
-    #plt.setp(L.texts, fontdict=font)
 
     plt.show()
 
-def plotAll(rewards, mins, maxs, mthd):
-    shap = rewards.shape
-    for r in range(shap[0]):
-        plt.title(mthd)
-        plt.xlabel('Episodes')
-        plt.ylabel('Reward')
-        plt.plot(rewards[r])
-        plt.plot(mins[r])
-        plt.plot(maxs[r])
-
-    plt.show()
-
+# Plot average reward against standard deviation of reward
 def plotStd(rwd, std):
     plt.plot(rwd, std, ',b')
-    plt.xlabel('reward', fontdict=font)
-    plt.ylabel('standard deviation', fontdict=font)
+    plt.xlabel('Reward', fontdict=font)
+    plt.ylabel('Standard Deviation', fontdict=font)
 
     plt.show()
 
+# Plot notched box plot for rewards of each experiment along with average
 def boxPlot(data, avg, ind):
     fig1, ax1 = plt.subplots()
+    plt.xlabel('Experiment Index', fontdict=font)
+    plt.ylabel('Reward', fontdict=font)
     ax1.boxplot(data, notch=True)
-    ax1.plot(ind, avg)
+    ax1.plot(ind, avg, 'x--b', label='average')
+
+    plt.legend()
+
     plt.show()
 
+# Plot grid of histograms of frequency of average rewards for each experiment
 def histExp(data, row, col, experiments):
 
     fig, ax = plt.subplots(row, col)
@@ -57,13 +52,14 @@ def histExp(data, row, col, experiments):
         for y in range(col):
             ax[x, y].hist(data[e], 100)
             e += 1
-            #ax[x, y].title(str(e))
 
     plt.show()
 
+# Plot histogram of reward frequency
 def hist(data):
 
     plt.hist(data, 100)
 
     plt.show()
+
 
