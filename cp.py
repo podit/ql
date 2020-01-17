@@ -188,9 +188,9 @@ length = 5
 # Set number of episodes and runs to be completed by the agent
 episodes = 100
 # Episodes constitute run length before testing
-runs = 3
+runs = 100
 
-bins = 3
+bins = 10
 
 # Set hyper-parameters for use in bellman equation for updating Q table
 # Discount factor
