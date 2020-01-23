@@ -6,8 +6,6 @@ Developed for Python 3.8
 
 Report detailing production is available on GitHub: [podit/reportmentLearning](https://github.com/podit/reportmentLearning)
 
-## THIS IS THE TAGGED REPORT VERSION!
-
 ### Install
 ```
 pip install pipenv
