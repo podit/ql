@@ -186,7 +186,7 @@ exponent = -0.75
 length = 5
 
 # Set number of episodes and runs to be completed by the agent
-episodes = 100
+episodes = 1000
 # Episodes constitute run length before testing
 runs = 100
 
